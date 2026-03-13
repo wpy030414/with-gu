@@ -3,9 +3,9 @@
  */
 export interface Picture {
   /** 来源文章 ID */
-  id: string;
+  id: string
   /** 日期 */
-  date: Date;
+  date: Date
   /** 地址 */
-  url: string;
+  url: string
 }

@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { goTop } from "@/util";
+import { goTop } from '@/util'
 
 defineProps<{
   /** 自选背景 */
-  optionalBgi?: string;
-}>();
+  optionalBgi?: string
+}>()
 
-goTop();
+goTop()
 </script>
 
 <template>
@@ -23,7 +23,7 @@ section {
   position: relative;
   padding: 15vh 12vw;
   background: var(--theme-sub)
-    url("//prts.wiki/images/5/50/立绘_纯烬艾雅法拉_1.png?image_process=format,webp/quality,Q_10")
+    url('//media.prts.wiki/5/50/立绘_纯烬艾雅法拉_1.png?image_process=format,webp/quality,Q_10')
     right / contain no-repeat;
   background-attachment: fixed;
 

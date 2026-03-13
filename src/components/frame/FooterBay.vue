@@ -1,40 +1,40 @@
 <script setup lang="ts">
-import { option } from "@/app.option";
+import { option } from '@/app.option'
 
-import { ref } from "vue";
+import { ref } from 'vue'
 
 /** 链接 */
 const infos = ref([
   {
-    title: "更多",
+    title: '更多',
     items: [
-      { name: "关于", link: "/about" },
-      { name: "赞助", link: "/sponsor" },
+      { name: '关于', link: '/about' },
+      { name: '赞助', link: '/sponsor' },
       {
-        name: "赤牧神社",
-        link: "/shrine",
+        name: '赤牧神社',
+        link: '/shrine',
         enable: !(option.bottomFunctions?.shrine === false),
       },
       {
-        name: "？",
-        link: "/easter-egg",
+        name: '？',
+        link: '/easter-egg',
         enable: !(option.bottomFunctions?.easterEgg === false),
       },
     ],
   },
   {
-    title: "设计参考",
+    title: '设计参考',
     items: [
-      { name: "保罗的小窝 Beta", link: "//beta.paul.ren/" },
-      { name: "Material Design 3", link: "//m3.material.io/" },
-      { name: "PicToGrammers", link: "//pictogrammers.com/" },
+      { name: '保罗的小窝 Beta', link: '//beta.paul.ren/' },
+      { name: 'Material Design 3', link: '//m3.material.io/' },
+      { name: 'PicToGrammers', link: '//pictogrammers.com/' },
     ],
   },
   {
-    title: "服务支持",
+    title: '服务支持',
     items: option.bottomFunctions?.support || [],
   },
-]);
+])
 </script>
 
 <template>
@@ -46,9 +46,9 @@ const infos = ref([
           <p><i>To archive higher value.</i></p>
         </li>
       </ul>
-      <ul class="card" v-for="i in [infos[0]]">
-        <h4>{{ i.title }}</h4>
-        <li v-for="c in i.items">
+      <ul class="card" v-for="i of [infos[0]]">
+        <h4>{{ i!.title }}</h4>
+        <li v-for="c of i!.items">
           <router-link v-if="c.enable === undefined || c.enable" :to="c.link">{{
             c.name
           }}</router-link>
@@ -84,7 +84,8 @@ const infos = ref([
 footer {
   padding: 8.1vh 12vw;
   background-color: var(--g-bg-c);
-  background-image: radial-gradient(var(--theme-main-tp) 10%, transparent 0),
+  background-image:
+    radial-gradient(var(--theme-main-tp) 10%, transparent 0),
     radial-gradient(var(--theme-main-tp) 10%, transparent 0);
   background-size: 30px 30px;
   background-position:
@@ -117,7 +118,7 @@ footer {
       position: relative;
 
       &:hover::before {
-        content: "";
+        content: '';
         position: absolute;
         bottom: -2px;
         left: 0;
@@ -144,7 +145,7 @@ footer {
         margin-bottom: 1em;
 
         &::before {
-          content: "";
+          content: '';
           position: absolute;
           bottom: -0.6em;
           width: 70%;

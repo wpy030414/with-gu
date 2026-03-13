@@ -1,15 +1,15 @@
-import { defineStore } from "pinia";
+import { defineStore } from 'pinia'
 
-export const useBGMStore = defineStore("bgm", () => {
+export const useBGMStore = defineStore('bgm', () => {
   /** 流媒体供应商 */
   const vendor = {
     getNeteaseUnit: (id: string) => {
-      return `//music.163.com/song/media/outer/url?id=${id}.mp3`;
+      return `//music.163.com/song/media/outer/url?id=${id}.mp3`
     },
-  };
+  }
 
   /** 播放器 DOM */
-  const player = document.querySelector("#player") as HTMLAudioElement;
+  const player = document.querySelector('#player') as HTMLAudioElement
 
   /**
    * 设置背景音乐。
@@ -17,7 +17,7 @@ export const useBGMStore = defineStore("bgm", () => {
    * @param url 链接
    */
   function setBGM(url: string) {
-    if (player) player.src = url;
+    if (player) player.src = url
   }
 
   /**
@@ -25,20 +25,20 @@ export const useBGMStore = defineStore("bgm", () => {
    *
    * @param force 强制指定
    */
-  function playOrPause(force?: "play" | "pause") {
+  function playOrPause(force?: 'play' | 'pause') {
     if (player)
       switch (force) {
-        case "play":
-          player.play();
-          break;
-        case "pause":
-          player.pause();
-          break;
+        case 'play':
+          player.play()
+          break
+        case 'pause':
+          player.pause()
+          break
         default:
-          if (player.paused) player.play();
-          else player.pause();
+          if (player.paused) player.play()
+          else player.pause()
       }
   }
 
-  return { vendor, setBGM, playOrPause };
-});
+  return { vendor, setBGM, playOrPause }
+})

@@ -1,15 +1,11 @@
 <script setup lang="ts">
-import ContentsShell from "@/components/frame/ContentsShell.vue";
-import CostBoard from "@/components/basis/CostBoard.vue";
+import ContentsShell from '@/components/frame/ContentsShell.vue'
+import CostBoard from '@/components/basis/CostBoard.vue'
 </script>
 
 <template>
   <contents-shell class="shell">
-    <img
-      src="//pic.imgdb.cn/item/64d653901ddac507ccfa4d1d.png"
-      alt=""
-      title="嗷呜！"
-    />
+    <img src="//pic.imgdb.cn/item/64d653901ddac507ccfa4d1d.png" alt="" title="嗷呜！" />
     <span>=>&nbsp;</span>
     <cost-board
       class="cb"

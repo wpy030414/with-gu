@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { option } from "@/app.option";
+import { option } from '@/app.option'
 
-import "@/assets/light.css";
-import "@/assets/dark.css";
-import(`@/assets/colored-theme/${option.global.theme}.css`);
-import TopBar from "@/components/frame/TopBar.vue";
-import FooterBay from "@/components/frame/FooterBay.vue";
-import PageSpirit from "@/components/frame/PageSpirit.vue";
-import { useThemeStore } from "@/stores/theme";
+import '@/assets/light.css'
+import '@/assets/dark.css'
+import(`@/assets/colored-theme/${option.global.theme}.css`)
+import TopBar from '@/components/frame/TopBar.vue'
+import FooterBay from '@/components/frame/FooterBay.vue'
+import PageSpirit from '@/components/frame/PageSpirit.vue'
+import { useThemeStore } from '@/stores/theme'
 
-useThemeStore().applyTheme(option.global.theme);
+useThemeStore().applyTheme(option.global.theme)
 </script>
 
 <template>
@@ -29,8 +29,8 @@ useThemeStore().applyTheme(option.global.theme);
 
 <style>
 @font-face {
-  src: url("./assets/Novecento-Wide-Bold-2.otf");
-  font-family: "Novecento";
+  src: url('./assets/Novecento-Wide-Bold-2.otf');
+  font-family: 'Novecento';
 }
 
 * {

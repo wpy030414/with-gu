@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import type { Picture } from "@/types/Picture";
-import ContentsShell from "@/components/frame/ContentsShell.vue";
-import Loading from "@/components/basis/Loading.vue";
-import PictureCard from "@/components/container/PictureCard.vue";
-import Pagination from "@/components/basis/Pagination.vue";
-import { useDataStore } from "@/stores/data";
+import { ref, watch } from 'vue'
+import type { Picture } from '@/types/Picture'
+import ContentsShell from '@/components/frame/ContentsShell.vue'
+import Loading from '@/components/basis/Loading.vue'
+import PictureCard from '@/components/container/PictureCard.vue'
+import Pagination from '@/components/basis/Pagination.vue'
+import { useDataStore } from '@/stores/data'
 
 /** 是否已准备好数据 */
-const isReady = ref(false);
+const isReady = ref(false)
 
 /** 已分页的数据 */
-const pagedData = ref<Picture[]>([]);
+const pagedData = ref<Picture[]>([])
 /** 页数 */
-const pageNum = ref(1);
+const pageNum = ref(1)
 /** 页容量 */
-const pageSize = ref(12);
+const pageSize = ref(12)
 /** 页总量 */
-const pageAmount = ref(0);
+const pageAmount = ref(0)
 
 /**
  * 刷新页面。
@@ -26,15 +26,15 @@ function reflash() {
   useDataStore()
     .getPictures(pageNum.value, pageSize.value)
     .then((response) => {
-      pagedData.value = response.data;
-      pageAmount.value = Math.ceil(response.totalSize / pageSize.value);
-      isReady.value = true;
-    });
+      pagedData.value = response.data
+      pageAmount.value = Math.ceil(response.totalSize / pageSize.value)
+      isReady.value = true
+    })
 }
 
-reflash();
+reflash()
 
-watch(pageNum, reflash);
+watch(pageNum, reflash)
 </script>
 
 <template>

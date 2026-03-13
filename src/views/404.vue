@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import ContentsShell from "@/components/frame/ContentsShell.vue";
-import TopicTitle from "@/components/basis/TopicTitle.vue";
+import ContentsShell from '@/components/frame/ContentsShell.vue'
+import TopicTitle from '@/components/basis/TopicTitle.vue'
 </script>
 
 <template>

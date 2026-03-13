@@ -3,19 +3,19 @@
  */
 export interface Collection {
   /** 分类 */
-  category: "figure" | "e-product";
+  category: 'figure' | 'e-product'
   /** 名称 */
-  name: string;
+  name: string
   /** 副标题 */
-  subtitle: Date;
+  subtitle: Date
   /** 描述 */
-  description: string;
+  description: string
   /** 图片 */
   picture: {
-    url: string;
-  };
+    url: string
+  }
   /** 详情 */
   detail: {
-    url: string;
-  };
+    url: string
+  }
 }

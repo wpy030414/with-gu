@@ -1,20 +1,17 @@
 <script setup lang="ts">
-import type { Collection } from "@/types/Collection";
-import Card from "@/components/basis/Card.vue";
-import GoButton from "@/components/basis/GoButton.vue";
+import type { Collection } from '@/types/Collection'
+import Card from '@/components/basis/Card.vue'
+import GoButton from '@/components/basis/GoButton.vue'
 
 defineProps<{
   /** 单数据 */
-  data: Collection;
-}>();
+  data: Collection
+}>()
 </script>
 
 <template>
   <card class="collection">
-    <span
-      class="img"
-      :style="`background-image: url(${data.picture.url});`"
-    ></span>
+    <span class="img" :style="`background-image: url(${data.picture.url});`"></span>
     <span class="text">
       <p class="name">{{ data.name }}</p>
       <p class="subtitle">——“{{ data.subtitle }}”</p>

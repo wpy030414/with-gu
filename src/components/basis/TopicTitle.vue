@@ -1,8 +1,8 @@
 <script setup lang="ts">
 defineProps<{
   /** 名牌内容 */
-  logo?: string;
-}>();
+  logo?: string
+}>()
 </script>
 
 <template>
@@ -28,7 +28,7 @@ h1 {
     color: var(--g-bg-c);
     text-shadow: none;
     font-size: 14px;
-    font-family: "Novecento";
+    font-family: 'Novecento';
   }
 }
 </style>

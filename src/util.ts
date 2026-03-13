@@ -3,6 +3,6 @@
  */
 export function goTop() {
   setTimeout(() => {
-    (document.querySelector(".spirit") as HTMLButtonElement).click();
-  }, 233);
+    ;(document.querySelector('.spirit') as HTMLButtonElement).click()
+  }, 233)
 }

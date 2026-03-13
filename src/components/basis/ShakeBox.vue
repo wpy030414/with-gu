@@ -1,51 +1,48 @@
 <script setup lang="ts">
-import { option } from "@/app.option";
+import { option } from '@/app.option'
 
-import { ref } from "vue";
-import { mdiChevronDown } from "@mdi/js";
-import DynamicLine from "@/components/basis/DynamicLine.vue";
-import GoButton from "@/components/basis/GoButton.vue";
+import { ref } from 'vue'
+import { mdiChevronDown } from '@mdi/js'
+import DynamicLine from '@/components/basis/DynamicLine.vue'
+import GoButton from '@/components/basis/GoButton.vue'
 
 /** 门户主人 */
-const who = ref(option.owner);
+const who = ref(option.owner)
 
 /** x 轴上翻转的角度 */
-const xDeg = ref(0);
+const xDeg = ref(0)
 /** y 轴上翻转的角度 */
-const yDeg = ref(0);
+const yDeg = ref(0)
 
-document.addEventListener("mousemove", (event) => {
-  const xRelative = event.clientX / window.innerWidth;
-  const yRelative = event.clientY / window.innerHeight;
-  const magnifyTimes = 20;
-  yDeg.value = -(xRelative - 0.5) * magnifyTimes;
-  xDeg.value = (yRelative - 0.5) * magnifyTimes * 1.5;
-});
+document.addEventListener('mousemove', (event) => {
+  const xRelative = event.clientX / window.innerWidth
+  const yRelative = event.clientY / window.innerHeight
+  const magnifyTimes = 20
+  yDeg.value = -(xRelative - 0.5) * magnifyTimes
+  xDeg.value = (yRelative - 0.5) * magnifyTimes * 1.5
+})
 
 /** 社交网站外链 */
-const socials = ref(option.socialLinks);
+const socials = ref(option.socialLinks)
 
 function handleKnowingMore() {
   window.scrollBy({
     top: window.innerHeight - 60,
-    behavior: "smooth",
-  });
+    behavior: 'smooth',
+  })
 }
 </script>
 
 <template>
   <section class="start">
     <img
-      src="//prts.wiki/images/9/97/立绘_煌_skin1.png?image_process=format,webp/quality,Q_10"
+      src="//media.prts.wiki/9/97/立绘_煌_skin1.png?image_process=format,webp/quality,Q_10"
       alt=""
     />
     <svg width="24" height="24">
       <path :d="mdiChevronDown"></path>
     </svg>
-    <section
-      class="nameplate"
-      :style="`--xDeg: ${xDeg}deg; --yDeg: ${yDeg}deg;`"
-    >
+    <section class="nameplate" :style="`--xDeg: ${xDeg}deg; --yDeg: ${yDeg}deg;`">
       <p>你好，我是</p>
       <h1>{{ who || `Penyo` }}</h1>
       <dynamic-line class="line"></dynamic-line>
@@ -82,7 +79,8 @@ function handleKnowingMore() {
   position: relative;
   height: calc(100vh - 60px);
   background: var(--theme-main);
-  background-image: repeating-linear-gradient(
+  background-image:
+    repeating-linear-gradient(
       45deg,
       var(--g-tp-high),
       var(--g-tp-high) 15px,
@@ -174,7 +172,7 @@ function handleKnowingMore() {
       left: calc(var(--np-width) * 0.45);
       width: calc(var(--np-height) * 1.44 * 0.55);
       height: calc(var(--np-height) * 1.44);
-      background: url("//prts.wiki/images/0/0c/立绘_阿米娅_skin1.png?image_process=format,webp/quality,Q_10")
+      background: url('//media.prts.wiki/0/0c/立绘_阿米娅_skin1.png?image_process=format,webp/quality,Q_10')
         center / cover;
       transform: translateZ(36px);
     }

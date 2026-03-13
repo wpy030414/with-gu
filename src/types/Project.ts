@@ -3,15 +3,15 @@
  */
 export interface Project {
   /** 名称 */
-  name: string;
+  name: string
   /** 描述 */
-  description: string;
+  description: string
   /** 图片 */
   picture: {
-    url: string;
-  };
+    url: string
+  }
   /** 详情 */
   detail: {
-    url: string;
-  };
+    url: string
+  }
 }

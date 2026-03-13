@@ -3,13 +3,13 @@
  */
 export enum Theme {
   /** 朱红 */
-  VERMILLION = "vermillion",
+  VERMILLION = 'vermillion',
   /** 泡泡糖粉 */
-  BUBBLEGUM = "bubblegum",
+  BUBBLEGUM = 'bubblegum',
   /** 柠檬黄 */
-  LEMON = "lemon",
+  LEMON = 'lemon',
   /** 薄荷青 */
-  MINT = "mint",
+  MINT = 'mint',
   /** 北极蓝 */
-  ARCTIC = "arctic",
+  ARCTIC = 'arctic',
 }

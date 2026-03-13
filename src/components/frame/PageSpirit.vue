@@ -1,17 +1,13 @@
 <script setup lang="ts">
-import { option } from "@/app.option";
+import { option } from '@/app.option'
 
-import { ref } from "vue";
-import { mdiArrowUp, mdiWeatherNight, mdiMusic } from "@mdi/js";
-import { useThemeStore } from "@/stores/theme";
-import { useBGMStore } from "@/stores/bgm";
+import { ref } from 'vue'
+import { mdiArrowUp, mdiWeatherNight, mdiMusic } from '@mdi/js'
+import { useThemeStore } from '@/stores/theme'
+import { useBGMStore } from '@/stores/bgm'
 
 /** 精灵图标 */
-const buttons = ref([
-  { icon: mdiArrowUp },
-  { icon: mdiWeatherNight },
-  { icon: mdiMusic },
-]);
+const buttons = ref([{ icon: mdiArrowUp }, { icon: mdiWeatherNight }, { icon: mdiMusic }])
 
 /**
  * 精灵行为。
@@ -23,15 +19,15 @@ function spirit(i: number) {
     case 0:
       window.scrollTo({
         top: 0,
-        behavior: "smooth",
-      });
-      break;
+        behavior: 'smooth',
+      })
+      break
     case 1:
-      useThemeStore().changeTheme();
-      break;
+      useThemeStore().changeTheme()
+      break
     case 2:
-      useBGMStore().playOrPause();
-      break;
+      useBGMStore().playOrPause()
+      break
   }
 }
 </script>

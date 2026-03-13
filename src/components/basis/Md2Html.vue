@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { marked } from "marked";
-import { gfmHeadingId } from "marked-gfm-heading-id";
+import { marked } from 'marked'
+import { gfmHeadingId } from 'marked-gfm-heading-id'
 
-marked.use(gfmHeadingId());
+marked.use(gfmHeadingId())
 
 defineProps<{
   /** Markdown 源码 */
-  md: string;
-}>();
+  md: string
+}>()
 </script>
 
 <template>
@@ -34,7 +34,7 @@ defineProps<{
 
     &::before,
     &::after {
-      content: "";
+      content: '';
       position: absolute;
       top: 0;
       width: 32px;

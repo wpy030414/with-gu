@@ -1,51 +1,51 @@
 <script setup lang="ts">
-import { option } from "@/app.option";
+import { option } from '@/app.option'
 
-import { ref } from "vue";
-import type { Article } from "@/types/Article";
-import type { Picture } from "@/types/Picture";
-import type { Project } from "@/types/Project";
-import ShakeBox from "@/components/basis/ShakeBox.vue";
-import ContentsShell from "@/components/frame/ContentsShell.vue";
-import TopicTitle from "@/components/basis/TopicTitle.vue";
-import Loading from "@/components/basis/Loading.vue";
-import ArticleCard from "@/components/container/ArticleCard.vue";
-import PictureCard from "@/components/container/PictureCard.vue";
-import ProjectCard from "@/components/container/ProjectCard.vue";
-import { useDataStore } from "@/stores/data";
+import { ref } from 'vue'
+import type { Article } from '@/types/Article'
+import type { Picture } from '@/types/Picture'
+import type { Project } from '@/types/Project'
+import ShakeBox from '@/components/basis/ShakeBox.vue'
+import ContentsShell from '@/components/frame/ContentsShell.vue'
+import TopicTitle from '@/components/basis/TopicTitle.vue'
+import Loading from '@/components/basis/Loading.vue'
+import ArticleCard from '@/components/container/ArticleCard.vue'
+import PictureCard from '@/components/container/PictureCard.vue'
+import ProjectCard from '@/components/container/ProjectCard.vue'
+import { useDataStore } from '@/stores/data'
 
 /** 是否已准备好数据 */
-const isReady = ref([false, false, false]);
+const isReady = ref([false, false, false])
 
 /** 近期文章 */
-const articles = ref<Article[]>([]);
+const articles = ref<Article[]>([])
 
 useDataStore()
   .getArticles(1, 2)
   .then((response) => {
-    articles.value = response.data;
-    isReady.value[0] = true;
-  });
+    articles.value = response.data
+    isReady.value[0] = true
+  })
 
 /** 近期图片 */
-const pictures = ref<Picture[]>([]);
+const pictures = ref<Picture[]>([])
 
 useDataStore()
   .getPictures(1, 3)
   .then((response) => {
-    pictures.value = response.data;
-    isReady.value[1] = true;
-  });
+    pictures.value = response.data
+    isReady.value[1] = true
+  })
 
 /** 近期项目 */
-const projects = ref<Project[]>([]);
+const projects = ref<Project[]>([])
 
 useDataStore()
   .getProjects(1, 4)
   .then((response) => {
-    projects.value = response.data;
-    isReady.value[2] = true;
-  });
+    projects.value = response.data
+    isReady.value[2] = true
+  })
 </script>
 
 <template>
@@ -63,20 +63,14 @@ useDataStore()
         />
       </div>
     </div>
-    <div
-      v-if="!(option.portalFunctions?.pictures === false)"
-      class="topic-shell"
-    >
+    <div v-if="!(option.portalFunctions?.pictures === false)" class="topic-shell">
       <topic-title logo="pictures">近期捕获</topic-title>
       <loading v-if="!isReady[1]" />
       <div v-if="isReady[1]" class="cards-shell">
         <picture-card v-for="c in pictures" :data="c" />
       </div>
     </div>
-    <div
-      v-if="!(option.portalFunctions?.projects === false)"
-      class="topic-shell"
-    >
+    <div v-if="!(option.portalFunctions?.projects === false)" class="topic-shell">
       <topic-title logo="projects">近期示范项目</topic-title>
       <loading v-if="!isReady[2]" />
       <div v-if="isReady[2]" class="cards-shell">

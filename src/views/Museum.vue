@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import type { Collection } from "@/types/Collection";
-import ContentsShell from "@/components/frame/ContentsShell.vue";
-import Loading from "@/components/basis/Loading.vue";
-import TopicTitle from "@/components/basis/TopicTitle.vue";
-import CollectionCard from "@/components/container/CollectionCard.vue";
-import { useDataStore } from "@/stores/data";
+import { ref } from 'vue'
+import type { Collection } from '@/types/Collection'
+import ContentsShell from '@/components/frame/ContentsShell.vue'
+import Loading from '@/components/basis/Loading.vue'
+import TopicTitle from '@/components/basis/TopicTitle.vue'
+import CollectionCard from '@/components/container/CollectionCard.vue'
+import { useDataStore } from '@/stores/data'
 
 /** 是否已准备好数据 */
-const isReady = ref([false]);
+const isReady = ref([false])
 
-const figures = ref<Collection[]>([]);
+const figures = ref<Collection[]>([])
 
 useDataStore()
   .getCollections()
   .then((response) => {
     figures.value = response.filter((c) => {
-      return c.category === "figure";
-    });
-    isReady.value[0] = true;
-  });
+      return c.category === 'figure'
+    })
+    isReady.value[0] = true
+  })
 </script>
 
 <template>

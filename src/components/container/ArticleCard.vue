@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import type { Article } from "@/types/Article";
-import Card from "@/components/basis/Card.vue";
-import Md2Html from "@/components/basis/Md2Html.vue";
+import type { Article } from '@/types/Article'
+import Card from '@/components/basis/Card.vue'
+import Md2Html from '@/components/basis/Md2Html.vue'
 
 defineProps<{
   /** 单数据 */
-  data: Article;
+  data: Article
   /** 是否为简单模式 */
-  isSimpleMode?: boolean;
+  isSimpleMode?: boolean
   /** 是否为核心模式 */
-  isCoreMode?: boolean;
-}>();
+  isCoreMode?: boolean
+}>()
 </script>
 
 <template>
@@ -24,10 +24,7 @@ defineProps<{
         {{ data.category }}
       </span>
     </p>
-    <md2-html
-      class="body"
-      :md="isSimpleMode ? data.body.slice(0, 500) : data.body"
-    />
+    <md2-html class="body" :md="isSimpleMode ? data.body.slice(0, 500) : data.body" />
     <!-- <go-button v-if="!isSimpleMode">赞同</go-button> -->
   </card>
 </template>
@@ -46,7 +43,7 @@ defineProps<{
     font-size: 30px;
 
     &::before {
-      content: "# ";
+      content: '# ';
       color: var(--theme-main);
     }
   }
@@ -79,7 +76,7 @@ defineProps<{
     height: 388px;
 
     &::after {
-      content: "";
+      content: '';
       position: absolute;
       bottom: 0;
       left: 0;

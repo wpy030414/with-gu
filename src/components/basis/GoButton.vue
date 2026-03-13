@@ -1,12 +1,12 @@
 <script setup lang="ts">
 defineProps<{
   /** 是否需要箭头动效 */
-  go?: boolean;
+  go?: boolean
   /** 是否被选中 */
-  chosen?: boolean;
+  chosen?: boolean
   /** 跳转链接 */
-  to?: string;
-}>();
+  to?: string
+}>()
 
 /**
  * 处理用户离开页面。
@@ -14,15 +14,12 @@ defineProps<{
  * @param url 外链
  */
 function handleUserLeave(url: string) {
-  window.open(url, "_blank");
+  window.open(url, '_blank')
 }
 </script>
 
 <template>
-  <button
-    :class="chosen ? 'chosen' : ''"
-    @click="to ? handleUserLeave(to) : void 0"
-  >
+  <button :class="chosen ? 'chosen' : ''" @click="to ? handleUserLeave(to) : void 0">
     <p :class="go ? 'go' : ''">
       <slot></slot>
     </p>
@@ -52,7 +49,7 @@ button {
     }
 
     &.go::after {
-      content: " >";
+      content: ' >';
     }
   }
 

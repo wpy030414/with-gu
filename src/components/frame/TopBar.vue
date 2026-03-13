@@ -1,61 +1,54 @@
 <script setup lang="ts">
-import { option } from "@/app.option";
+import { option } from '@/app.option'
 
-import { onMounted, ref } from "vue";
-import {
-  mdiHome,
-  mdiPen,
-  mdiImage,
-  mdiStar,
-  mdiArchiveMusic,
-  mdiMenu,
-} from "@mdi/js";
+import { onMounted, ref } from 'vue'
+import { mdiHome, mdiPen, mdiImage, mdiStar, mdiArchiveMusic, mdiMenu } from '@mdi/js'
 
 defineProps<{
   /** 当前页面默认路由 */
-  pageName: string;
-}>();
+  pageName: string
+}>()
 
 /** 菜单 */
 const menu = ref([
-  { icon: mdiHome, href: "/" },
+  { icon: mdiHome, href: '/' },
   {
     icon: mdiPen,
-    href: "/blog",
+    href: '/blog',
     enable: !(option.coreFunctions?.blog === false),
   },
   {
     icon: mdiImage,
-    href: "/galary",
+    href: '/galary',
     enable: !(option.coreFunctions?.galary === false),
   },
   {
     icon: mdiStar,
-    href: "/museum",
+    href: '/museum',
     enable: !(option.coreFunctions?.museum === false),
   },
   {
     icon: mdiArchiveMusic,
-    href: "/project",
+    href: '/project',
     enable: !(option.coreFunctions?.project === false),
   },
-]);
+])
 
 /** 是否（可能）在移动端上 */
-const isOnMobile = ref(false);
+const isOnMobile = ref(false)
 
 onMounted(() => {
   const updateIsOnMobile = () => {
-    isOnMobile.value = window.innerWidth < 1000;
-  };
+    isOnMobile.value = window.innerWidth < 1000
+  }
 
-  updateIsOnMobile();
+  updateIsOnMobile()
 
-  window.addEventListener("resize", updateIsOnMobile);
-});
+  window.addEventListener('resize', updateIsOnMobile)
+})
 
 /** 菜单是否已弹出 */
-const isMenuPoped = ref(false);
+const isMenuPoped = ref(false)
 </script>
 
 <template>
@@ -108,7 +101,7 @@ header {
     position: absolute;
     left: 2em;
     color: #fff;
-    font-family: "Novecento";
+    font-family: 'Novecento';
     line-height: var(--header-height);
     transform: translateY(-3.5px);
     user-select: none;
@@ -134,7 +127,7 @@ header {
     }
 
     &:hover::before {
-      content: "";
+      content: '';
       position: absolute;
       top: 0;
       left: 0;

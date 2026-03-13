@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import type { Article } from "@/types/Article";
-import ContentsShell from "@/components/frame/ContentsShell.vue";
-import Loading from "@/components/basis/Loading.vue";
-import ArticleCard from "@/components/container/ArticleCard.vue";
-import { useUniqueDataStore } from "@/stores/unique-data";
+import { ref } from 'vue'
+import type { Article } from '@/types/Article'
+import ContentsShell from '@/components/frame/ContentsShell.vue'
+import Loading from '@/components/basis/Loading.vue'
+import ArticleCard from '@/components/container/ArticleCard.vue'
+import { useUniqueDataStore } from '@/stores/unique-data'
 
 /** 自述 */
-const readme = ref<Article | undefined>();
+const readme = ref<Article | undefined>()
 
 useUniqueDataStore()
   .getReadme()
   .then((response) => {
-    readme.value = response;
-  });
+    readme.value = response
+  })
 </script>
 
 <template>

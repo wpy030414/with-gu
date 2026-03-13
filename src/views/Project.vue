@@ -1,29 +1,29 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import type { Program } from "@/types/Program";
-import ContentsShell from "@/components/frame/ContentsShell.vue";
-import Loading from "@/components/basis/Loading.vue";
-import TopicTitle from "@/components/basis/TopicTitle.vue";
-import ProgramCard from "@/components/container/ProgramCard.vue";
-import { useDataStore } from "@/stores/data";
+import { ref } from 'vue'
+import type { Program } from '@/types/Program'
+import ContentsShell from '@/components/frame/ContentsShell.vue'
+import Loading from '@/components/basis/Loading.vue'
+import TopicTitle from '@/components/basis/TopicTitle.vue'
+import ProgramCard from '@/components/container/ProgramCard.vue'
+import { useDataStore } from '@/stores/data'
 
 /** 是否已准备好数据 */
-const isReady = ref(false);
+const isReady = ref(false)
 
 /** 节目 */
-const programs = ref<Program[]>([]);
+const programs = ref<Program[]>([])
 /** 年份 */
-const years = ref(new Set<number>());
+const years = ref(new Set<number>())
 
 useDataStore()
   .getPrograms()
   .then((response) => {
-    programs.value = response;
+    programs.value = response
     programs.value.forEach((p) => {
-      years.value.add(p.releaseDate.getFullYear());
-    });
-    isReady.value = true;
-  });
+      years.value.add(p.releaseDate.getFullYear())
+    })
+    isReady.value = true
+  })
 </script>
 
 <template>
@@ -34,7 +34,7 @@ useDataStore()
       <div class="cards-shell">
         <program-card
           v-for="p in programs.filter((sp) => {
-            return sp.releaseDate.getFullYear() === y;
+            return sp.releaseDate.getFullYear() === y
           })"
           :data="p"
         />

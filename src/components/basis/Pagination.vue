@@ -1,27 +1,27 @@
 <script setup lang="ts">
-import { goTop } from "@/util";
-import GoButton from "@/components/basis/GoButton.vue";
+import { goTop } from '@/util'
+import GoButton from '@/components/basis/GoButton.vue'
 
 defineProps<{
   /** 页数 */
-  pageNum: number;
+  pageNum: number
   /** 页总量 */
-  pageAmount: number;
-}>();
+  pageAmount: number
+}>()
 
-defineEmits(["update:pageNum"]);
+defineEmits(['update:pageNum'])
 </script>
 
 <template>
   <div>
     <go-button
-      @click="$emit('update:pageNum', pageNum - 1), goTop()"
+      @click="($emit('update:pageNum', pageNum - 1), goTop())"
       :disabled="pageNum <= 1 ? true : false"
       >上一页</go-button
     >
     <span>{{ `${pageNum}/${pageAmount}` }}</span>
     <go-button
-      @click="$emit('update:pageNum', pageNum + 1), goTop()"
+      @click="($emit('update:pageNum', pageNum + 1), goTop())"
       :disabled="pageNum >= pageAmount ? true : false"
       >下一页</go-button
     >

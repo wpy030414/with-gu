@@ -1,30 +1,30 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref } from 'vue'
 
 const props = defineProps<{
   /** 初始费用 */
-  originalCost?: number;
+  originalCost?: number
   /** 费用异动因素 */
   abnormalFactor?: {
     /** 行商数量（不考虑模组） */
-    withMerchants?: number;
-  };
-}>();
+    withMerchants?: number
+  }
+}>()
 
-const cost = ref(props.originalCost || 10);
+const cost = ref(props.originalCost || 10)
 /** 费用上限 */
-const limit = ref(99);
+const limit = ref(99)
 
 setInterval(() => {
-  if (cost.value < limit.value) cost.value += 1;
-}, 1000);
+  if (cost.value < limit.value) cost.value += 1
+}, 1000)
 
 setTimeout(() => {
   setInterval(() => {
-    const decrease = props?.abnormalFactor?.withMerchants || 0;
-    cost.value -= decrease * 3;
-  }, 3000);
-}, 400);
+    const decrease = props?.abnormalFactor?.withMerchants || 0
+    cost.value -= decrease * 3
+  }, 3000)
+}, 400)
 </script>
 
 <template>
@@ -54,7 +54,7 @@ div {
 
   &::before,
   &::after {
-    content: "";
+    content: '';
     position: absolute;
     bottom: 0;
     left: 0;
@@ -81,7 +81,7 @@ div {
     background: #fff;
     transform: rotate(45deg);
     &::before {
-      content: "C";
+      content: 'C';
       position: absolute;
       top: -0.21em;
       left: 0.03em;

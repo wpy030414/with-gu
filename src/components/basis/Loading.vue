@@ -23,7 +23,7 @@ div {
   overflow: hidden;
 
   &::before {
-    content: "";
+    content: '';
     position: absolute;
     --b-length: 54px;
     --b-height: 6px;

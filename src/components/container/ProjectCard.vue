@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { Project } from "@/types/Project";
-import Card from "@/components/basis/Card.vue";
-import GoButton from "@/components/basis/GoButton.vue";
+import type { Project } from '@/types/Project'
+import Card from '@/components/basis/Card.vue'
+import GoButton from '@/components/basis/GoButton.vue'
 
 defineProps<{
   /** 单数据 */
-  data: Project;
-}>();
+  data: Project
+}>()
 </script>
 
 <template>

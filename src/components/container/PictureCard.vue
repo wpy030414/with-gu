@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { Picture } from "@/types/Picture";
-import Card from "@/components/basis/Card.vue";
+import type { Picture } from '@/types/Picture'
+import Card from '@/components/basis/Card.vue'
 
 defineProps<{
   /** 单数据 */
-  data: Picture;
-}>();
+  data: Picture
+}>()
 </script>
 
 <template>

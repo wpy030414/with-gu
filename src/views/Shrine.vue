@@ -1,60 +1,53 @@
 <script setup lang="ts">
-import "@/assets/colored-theme/vermillion.css";
-import { onBeforeUnmount, ref } from "vue";
-import ContentsShell from "@/components/frame/ContentsShell.vue";
-import Card from "@/components/basis/Card.vue";
-import { useThemeStore } from "@/stores/theme";
-import { useBGMStore } from "@/stores/bgm";
-import { useDrawingStore } from "@/stores/drawing";
-import { Theme } from "@/types/Theme";
-import { option } from "@/app.option";
+import '@/assets/colored-theme/vermillion.css'
+import { onBeforeUnmount, ref } from 'vue'
+import ContentsShell from '@/components/frame/ContentsShell.vue'
+import Card from '@/components/basis/Card.vue'
+import { useThemeStore } from '@/stores/theme'
+import { useBGMStore } from '@/stores/bgm'
+import { useDrawingStore } from '@/stores/drawing'
+import { Theme } from '@/types/Theme'
+import { option } from '@/app.option'
 
-const outside = useThemeStore().getTheme();
+const outside = useThemeStore().getTheme()
 
-useThemeStore().applyTheme(Theme.VERMILLION);
-useBGMStore().setBGM(useBGMStore().vendor.getNeteaseUnit("1879108724"));
-useBGMStore().playOrPause("play");
+useThemeStore().applyTheme(Theme.VERMILLION)
+useBGMStore().setBGM(useBGMStore().vendor.getNeteaseUnit('1879108724'))
+useBGMStore().playOrPause('play')
 
 onBeforeUnmount(() => {
-  useThemeStore().applyTheme(outside);
-  useBGMStore().setBGM(option.global.backgroundMusic || "");
-  useBGMStore().playOrPause("pause");
-});
+  useThemeStore().applyTheme(outside)
+  useBGMStore().setBGM(option.global.backgroundMusic || '')
+  useBGMStore().playOrPause('pause')
+})
 
 /** 背景图 */
 const bgi = ref(
-  "//th.bing.com/th/id/R.af861498e15ba919327f7bef9cfe593d?rik=PCuE0KMeLytGYw&riu=http%3a%2f%2fys-helloworld.com%2fwp-content%2fuploads%2f2014%2f11%2fIMG_9683.jpg&ehk=wBNAZomkHSfhqu2X9z956Gd3vFHZs9R7clxP5%2bBjXFs%3d&risl=&pid=ImgRaw&r=0",
-);
+  '//th.bing.com/th/id/R.af861498e15ba919327f7bef9cfe593d?rik=PCuE0KMeLytGYw&riu=http%3a%2f%2fys-helloworld.com%2fwp-content%2fuploads%2f2014%2f11%2fIMG_9683.jpg&ehk=wBNAZomkHSfhqu2X9z956Gd3vFHZs9R7clxP5%2bBjXFs%3d&risl=&pid=ImgRaw&r=0',
+)
 
 /** 结果。由“程度”和“方向”组成 */
-const result = ref<[string, string]>(["", ""]);
+const result = ref<[string, string]>(['', ''])
 
 /**
  * 处理御神签选中。
  */
 function handleSelect() {
-  if (useDrawingStore().canDraw()) result.value = useDrawingStore().draw();
-  else alert("您不能过于频繁地抽签！请明天再来吧。");
+  if (useDrawingStore().canDraw()) result.value = useDrawingStore().draw()
+  else alert('您不能过于频繁地抽签！请明天再来吧。')
 }
 
 /** 抽签动画是否结束 */
-const isAnimationDone = ref(false);
+const isAnimationDone = ref(false)
 </script>
 
 <template>
   <contents-shell :optional-bgi="bgi">
-    <card
-      class="lots-box"
-      :class="isAnimationDone && (result[1] === '凶' ? 'bad' : '')"
-    >
+    <card class="lots-box" :class="isAnimationDone && (result[1] === '凶' ? 'bad' : '')">
       <h2>❀ 御神签箱 ❀</h2>
       <transition name="lots" @after-leave="isAnimationDone = true">
         <div v-if="!result[1]" class="lots">
-          <div
-            v-for="l in 5"
-            :style="`--bit: ${l - 3}`"
-            @click="handleSelect"
-          ></div>
+          <div v-for="l in 5" :style="`--bit: ${l - 3}`" @click="handleSelect"></div>
         </div>
       </transition>
       <div v-if="isAnimationDone && result[1]" class="result">
@@ -98,8 +91,7 @@ const isAnimationDone = ref(false);
   box-shadow: 0 0 10px #33333326;
   --degree: 30deg;
   --extract: 0;
-  transform: rotate(calc(var(--bit) * 0.618 * var(--degree)))
-    translateY(var(--extract));
+  transform: rotate(calc(var(--bit) * 0.618 * var(--degree))) translateY(var(--extract));
   transition: all 0.5s;
 }
 

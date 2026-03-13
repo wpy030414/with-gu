@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import type { Program } from "@/types/Program";
-import Card from "@/components/basis/Card.vue";
+import { ref } from 'vue'
+import type { Program } from '@/types/Program'
+import Card from '@/components/basis/Card.vue'
 
 defineProps<{
   /** 单数据 */
-  data: Program;
-}>();
+  data: Program
+}>()
 
 /** 服务商名称映射 */
 const ssnMap = ref(
   new Map([
-    ["netease", "网易云音乐"],
-    ["bilibili", "哔哩哔哩"],
+    ['netease', '网易云音乐'],
+    ['bilibili', '哔哩哔哩'],
   ]),
-);
+)
 </script>
 
 <template>
