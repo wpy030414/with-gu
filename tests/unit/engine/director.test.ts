@@ -95,6 +95,14 @@ describe('computeDelta', () => {
   it('时间戳倒退（时钟回拨）返回 0 而非负数', () => {
     expect(computeDelta(900, 1000)).toBe(0)
   })
+
+  it('慢机器上的帧长按真实值推进 —— 动画的墙上时长不随帧率漂移', () => {
+    // 10fps（100ms/帧）与 5fps（200ms/帧）都必须原样通过。
+    // 一旦这里被截断，动画在低帧率机器上就会慢于标称时长 ——
+    // 那类「本地通过、CI 超时」的故障正是这么来的。
+    expect(computeDelta(1100, 1000)).toBe(100)
+    expect(computeDelta(1200, 1000)).toBe(200)
+  })
 })
 
 describe('优先级预算', () => {
