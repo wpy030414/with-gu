@@ -1,47 +1,65 @@
-.card {
-  position: relative;
+/* ==========================================================================
+   with-gu · 时间线节点
+   一段终端输出，不是一张卡片 —— 无边框、无背景块，
+   节点之间靠一条虚线断开（见 ADR-014）。
+   ========================================================================== */
 
+.card {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
 
-  padding: var(--space-6);
-  border: 1px solid var(--amber-ghost);
-  border-left: 2px solid var(--amber-dim);
+  padding-block: var(--space-8);
 
-  background: linear-gradient(180deg, var(--bg-panel), var(--bg-void));
-
-  /* 固定最小高度：字符画揭示过程中只改 textContent，绝不改变布局，
+  /* 字符画揭示过程中只改 textContent，绝不改变布局，
      否则会触发滚动锚定跳变与 CLS */
   content-visibility: auto;
   contain-intrinsic-size: auto 620px;
   overflow-anchor: none;
 }
 
-.card[data-accent='alert'] {
-  border-left-color: var(--alert);
+.card + .card {
+  border-top: 1px dashed var(--amber-ghost);
 }
 
-.card[data-accent='bright'] {
-  border-left-color: var(--amber-bright);
+/* 节点由一条命令开启 —— 这是「终端在读日志」最省字的一笔 */
+.command {
+  color: var(--text-secondary);
+  font-size: 13px;
+  letter-spacing: 0.04em;
 }
 
-.header {
+.command::before {
+  content: 'gu@with-gu:~$ ';
+  color: var(--amber);
+}
+
+.meta {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
   align-items: baseline;
-  justify-content: space-between;
 
   font-size: 12px;
   letter-spacing: 0.14em;
 }
 
 .code {
+  flex: none;
   color: var(--amber);
 }
 
+/* 点线把编号与标签拉到两端，是终端索引页的分栏手法 */
+.leader {
+  flex: 1;
+  min-width: var(--space-4);
+  align-self: center;
+
+  border-bottom: 1px dotted var(--amber-ghost);
+}
+
 .tag {
+  flex: none;
   color: var(--amber-dim);
 }
 
@@ -51,6 +69,18 @@
 
 .tag::after {
   content: ' ]';
+}
+
+/* 强调色不能只有颜色一条通路 —— 打赏与车祸额外给一个 ASCII 前缀标记，
+   色觉障碍下同样读得出来 */
+.card[data-accent='alert'] .code::before {
+  content: '! ';
+  color: var(--alert);
+}
+
+.card[data-accent='bright'] .code::before {
+  content: '* ';
+  color: var(--amber-bright);
 }
 
 .date {
@@ -73,11 +103,20 @@
 }
 
 .art {
-  margin: var(--space-2) 0;
   padding: var(--space-3) 0;
-  overflow-x: auto;
 }
 
 .card[data-accent='alert'] .title {
   color: var(--alert);
+  text-shadow: var(--glow-alert);
+}
+
+@media (width < 720px) {
+  .card {
+    padding-block: var(--space-6);
+  }
+
+  .command {
+    font-size: 12px;
+  }
 }

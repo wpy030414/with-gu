@@ -4,7 +4,7 @@
  * 全部来自旧站的 `DynamicLine.vue`（原打字机台词池），原样搬迁 ——
  * 这些是站主自己写的句子，一个字都不该被「优化」。
  *
- * 启动序列与页脚微终端会从中随机取一句。
+ * 目前只有开机序列会从中随机取一句（见 BootScreen）。
  */
 
 export const QUIPS: readonly string[] = [

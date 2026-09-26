@@ -4,7 +4,10 @@ import { CrtOverlay } from '@/components/crt/CrtOverlay'
 import { BootScreen } from '@/components/sections/BootScreen'
 import { Epilogue } from '@/components/sections/Epilogue'
 import { TimelineSection } from '@/components/sections/TimelineSection'
-import { TerminalFooter } from '@/components/terminal/TerminalFooter'
+import { TerminalOutput } from '@/components/terminal/TerminalOutput'
+import { TerminalPrompt } from '@/components/terminal/TerminalPrompt'
+import { TerminalSession } from '@/components/terminal/TerminalSession'
+import { TerminalWindow } from '@/components/terminal/TerminalWindow'
 import { DEFAULT_POOL } from '@/engine/charset'
 import { director } from '@/engine/director'
 import { measureCellMetrics } from '@/engine/measure'
@@ -55,20 +58,27 @@ export default function App() {
       <CrtOverlay />
 
       {entered ? (
-        <>
-          {/* 跳转链接只在正文存在时才渲染 ——
-              否则开机阶段它会指向一个还不存在的 #timeline，
-              键盘用户第一下 Tab 就撞上死链接 */}
-          <a className="sr-only" href="#timeline">
-            跳到时间线
-          </a>
+        /* 正片整体活在**一个终端窗口**里：标题栏与命令行常驻，
+           时间线、尾声、命令输出都在窗口内部的屏幕上滚动。
+           首屏不吃这层外壳 —— 开机时窗口还没出现（见 ADR-014）。 */
+        <TerminalSession>
+          <TerminalWindow
+            title="gu@with-gu: ~/timeline"
+            meta="UTF-8 · 80×24"
+            prompt={<TerminalPrompt />}
+          >
+            <a className="sr-only" href="#terminal-input">
+              跳到命令行
+            </a>
 
-          <main id="timeline">
-            <TimelineSection pool={pool} />
-            <Epilogue pool={pool} />
-          </main>
-          <TerminalFooter pool={pool} />
-        </>
+            <main id="timeline">
+              <TimelineSection pool={pool} />
+              <Epilogue pool={pool} />
+            </main>
+
+            <TerminalOutput />
+          </TerminalWindow>
+        </TerminalSession>
       ) : (
         <BootScreen pool={pool} onEnter={() => setEntered(true)} />
       )}

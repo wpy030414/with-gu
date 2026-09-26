@@ -1,0 +1,53 @@
+.output {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+
+  margin-top: var(--space-8);
+  padding-top: var(--space-6);
+  border-top: 1px dashed var(--amber-ghost);
+}
+
+.echo {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.echo::before {
+  content: 'gu@with-gu:~$ ';
+  color: var(--amber);
+}
+
+.plain {
+  color: var(--amber);
+  font-size: 14px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+.hint {
+  color: var(--amber-dim);
+  font-size: 13px;
+  line-height: 1.9;
+  white-space: pre-wrap;
+}
+
+/* 情书全文：中文散文，不受 ASCII 栅格约束 */
+.license {
+  max-height: 50vh;
+  overflow-y: auto;
+
+  margin: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--amber-ghost);
+
+  color: var(--amber);
+  font-size: 13.5px;
+  line-height: 1.9;
+  white-space: pre-wrap;
+}
+
+.ominous {
+  color: var(--alert);
+  text-shadow: var(--glow-alert);
+}

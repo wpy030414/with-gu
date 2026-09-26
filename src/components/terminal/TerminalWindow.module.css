@@ -1,0 +1,172 @@
+/* ==========================================================================
+   with-gu · 终端窗口外壳
+   ========================================================================== */
+
+.window {
+  /* fixed 而非「body 里的一个容器」：它脱离文档流，页面因此不再滚动，
+     滚动全部发生在 .screen 里。窗口也就不会跟着内容滚走。 */
+  position: fixed;
+  inset: 0;
+
+  display: grid;
+  /* 中间那行必须 minmax(0, 1fr)：1fr 的默认下限是 auto，
+     内容一长就会把这一行顶开，内部滚动随之失效、窗口被撑破。 */
+  grid-template-rows: auto minmax(0, 1fr) auto;
+
+  width: min(var(--win-width), calc(100% - 2 * var(--win-gap)));
+  height: min(var(--win-height), calc(100svh - 2 * var(--win-gap)));
+  margin: auto;
+
+  overflow: hidden;
+  background: var(--bg-panel);
+  border: 1px solid var(--amber-dim);
+  border-radius: var(--win-radius);
+  box-shadow: var(--win-shadow);
+
+  animation: window-in var(--dur-base) ease-out both;
+}
+
+/* 窗口出现：一次极短的收束。
+   幅度必须小 —— 大了就是「弹窗」，不是「屏幕亮起」。 */
+@keyframes window-in {
+  from {
+    opacity: 0;
+    transform: scale(0.99);
+  }
+}
+
+@media (width < 720px) {
+  .window {
+    /* 窄屏上窗口就是整块屏：去掉边框与圆角，把每一像素还给内容 */
+    width: 100%;
+    height: 100svh;
+    border: none;
+    border-radius: 0;
+
+    /* 屏幕内边距跟着收 —— 375px 宽下 24px 是奢侈的 */
+    --win-pad: var(--space-4);
+  }
+
+  .titlebar {
+    padding-inline: var(--space-3);
+  }
+
+  /* 会话信息是装饰，窄屏上它只会把标题挤成省略号 */
+  .meta {
+    display: none;
+  }
+}
+
+/* ------------------------------- 标题栏 ------------------------------- */
+
+.titlebar {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+
+  padding: 0 var(--space-4);
+  height: 34px;
+
+  color: var(--text-secondary);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--amber-ghost);
+
+  /* 标题栏是装饰，选中它毫无意义，还会在拖拽滚动时误选 */
+  user-select: none;
+}
+
+.lights {
+  display: flex;
+  flex: none;
+  gap: 6px;
+}
+
+.light {
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--amber-dim);
+  border-radius: 50%;
+  background: var(--amber-ghost);
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  color: var(--amber);
+}
+
+.meta {
+  flex: none;
+
+  /* 这里**不能**用 --amber-dim：那个色值是按 --bg-void 实测的 4.87:1，
+     放到标题栏的 --bg-raised 底上只剩 4.47:1，差 0.03 掉出 AA（axe 判 serious）。
+     同 ADR-009 的教训 —— 色值的达标结论跟着底色走，不能跨底复用。 */
+  color: var(--text-secondary);
+}
+
+/* -------------------------------- 屏幕 -------------------------------- */
+
+.screen {
+  min-height: 0;
+
+  /* overscroll-behavior: 滚到底时把惯性止在窗口里，
+     否则在触控板上会把整个页面（乃至浏览器历史）带走 */
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+
+  padding: var(--win-pad);
+
+  /* 滚动条本身就是终端的一部分，不能交给系统默认样式 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--amber-ghost) transparent;
+}
+
+/* 键盘聚焦到屏幕时，描边落在窗口内侧 —— 看起来像「窗口被选中」，
+   而不是在窗口外面又套了一个方框 */
+.screen:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: -4px;
+}
+
+.screen::-webkit-scrollbar {
+  width: 10px;
+}
+
+.screen::-webkit-scrollbar-track {
+  background: var(--bg-void);
+}
+
+.screen::-webkit-scrollbar-thumb {
+  border: 3px solid var(--bg-void);
+  border-radius: 999px;
+  background: var(--amber-ghost);
+}
+
+.screen:hover::-webkit-scrollbar-thumb {
+  background: var(--amber-dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen {
+    scroll-behavior: auto;
+  }
+}
+
+/* ------------------------------- 命令行 ------------------------------- */
+
+.promptbar {
+  padding: var(--space-3) var(--space-4);
+
+  background: var(--bg-raised);
+  border-top: 1px solid var(--amber-ghost);
+}

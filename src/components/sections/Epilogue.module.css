@@ -4,7 +4,10 @@
   gap: var(--space-6);
   align-items: center;
 
-  padding: var(--space-12) var(--space-6);
+  /* 左右内边距由窗口的屏幕统一给（见 TerminalWindow.module.css） */
+  padding-block: var(--space-12) var(--space-6);
+  border-top: 1px dashed var(--amber-ghost);
+
   text-align: center;
 }
 

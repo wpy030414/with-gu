@@ -1,0 +1,37 @@
+.prompt {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.label {
+  color: var(--amber);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+
+  padding: var(--space-1) 0;
+
+  color: var(--amber-bright);
+  font: inherit;
+  font-size: 14px;
+
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--amber-ghost);
+  outline: none;
+}
+
+.input:focus {
+  border-bottom-color: var(--amber);
+}
+
+.input::placeholder {
+  /* 与窗口标题栏同一个理由：--amber-dim 的达标结论只在 --bg-void 上成立，
+     而输入行所在的底是更亮的 --bg-raised */
+  color: var(--text-secondary);
+}

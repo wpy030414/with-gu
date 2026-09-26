@@ -1,11 +1,28 @@
+/* ==========================================================================
+   with-gu · 时间线
+   内容区不再是「一页文档」，而是终端屏幕上的一段输出 ——
+   左右内边距由窗口（TerminalWindow 的 .screen）统一给。
+   ========================================================================== */
+
 .section {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: var(--space-12) var(--space-6);
+  /* 不再自我居中：屏幕的内边距就是它的边界 */
+  max-width: 100%;
+}
+
+.command {
+  margin-bottom: var(--space-6);
+
+  color: var(--amber);
+  font-size: 13px;
+  letter-spacing: 0.04em;
 }
 
 .heading {
-  margin-bottom: var(--space-8);
+  display: flex;
+  gap: var(--space-3);
+  align-items: baseline;
+
+  margin-bottom: var(--space-1);
 
   /* 这是正儿八经的标题文字，必须满足 AA —— 用次级正文色而非装饰色 */
   color: var(--text-secondary);
@@ -15,17 +32,54 @@
   text-transform: uppercase;
 }
 
+/* 点线引导：终端里 `man` 索引页的分栏就是靠一串点把两端拉齐的。
+   用 border 而不是「一长串 ·」—— 后者会随字号变化错位。 */
+.leader {
+  flex: 1;
+  min-width: var(--space-4);
+  align-self: center;
+
+  border-bottom: 1px dotted var(--amber-ghost);
+}
+
+.count {
+  flex: none;
+  color: var(--amber-dim);
+}
+
 .list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-8);
 
   padding: 0;
   margin: 0;
   list-style: none;
 }
 
-/* 每个节点可被 hash 深链直达；留出顶部空间避免被粘性元素遮住标题 */
+/* 每个节点可被 hash 深链直达；留出顶部空间避免被窗口上沿切掉标题 */
 .section :global([id]) {
-  scroll-margin-top: var(--space-12);
+  scroll-margin-top: var(--space-6);
+}
+
+@media (width < 720px) {
+  /* 窄屏：0.3em 的字距会把标题顶成两行半，点线也跟着断得难看。
+     收窄字距、去掉点线，让 record 数自己换到第二行靠右。 */
+  .heading {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+  }
+
+  .leader {
+    display: none;
+  }
+
+  .count {
+    margin-left: auto;
+  }
+
+  .command {
+    font-size: 12px;
+  }
 }

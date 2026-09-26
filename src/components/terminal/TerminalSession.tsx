@@ -1,9 +1,11 @@
-import { useCallback, useRef, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
 
+import { COMMAND_HELP, fortuneCooldownNotice, unknownCommand } from '@/content/commands'
 import { drawFortune, FORTUNE_COOLDOWN_MS, isOminous } from '@/content/fortune'
 import { hash1d, seedFromString } from '@/engine/rng'
 
-import styles from './TerminalFooter.module.css'
+import styles from './TerminalOutput.module.css'
 
 /** 《杏仁鹿与咕猫猫一生一世专属许可证》——
     直接 ?raw 引入仓库根的 LICENSE.md，单一内容源，零重复 */
@@ -12,11 +14,21 @@ import licenseText from '../../../LICENSE.md?raw'
 const STORAGE_KEY = 'with-gu:fortune-at'
 const FORTUNE_SEED = seedFromString('fortune')
 
-interface Entry {
+export interface SessionEntry {
   id: number
   command: string
   node: ReactNode
 }
+
+interface SessionApi {
+  entries: readonly SessionEntry[]
+  input: string
+  setInput: (value: string) => void
+  /** 跑一行命令（`clear` 之类的内部状态变更也走这里） */
+  run: (raw: string) => void
+}
+
+const SessionContext = createContext<SessionApi | null>(null)
 
 /** 冷却剩余毫秒数；读不到或不可用时返回 0（不阻塞使用） */
 function cooldownRemaining(): number {
@@ -47,12 +59,19 @@ function formatRemaining(ms: number): string {
   return hours > 0 ? `${hours} 小时 ${minutes} 分钟` : `${minutes} 分钟`
 }
 
-export interface TerminalFooterProps {
-  pool?: string
+export interface TerminalSessionProps {
+  children: ReactNode
 }
 
-export function TerminalFooter(_props: TerminalFooterProps) {
-  const [entries, setEntries] = useState<Entry[]>([])
+/**
+ * 终端会话
+ *
+ * 命令历史与输入框**不在同一个 DOM 位置**：历史属于屏幕内容（随正文滚动），
+ * 输入行常驻窗口底部。真终端就是这样分工的，所以这层会话状态必须提到
+ * 窗口之上，由 `TerminalOutput`（屏幕内）与 `TerminalPrompt`（底栏）分头消费。
+ */
+export function TerminalSession({ children }: TerminalSessionProps) {
+  const [entries, setEntries] = useState<SessionEntry[]>([])
   const [input, setInput] = useState('')
   const nextId = useRef(0)
 
@@ -73,18 +92,7 @@ export function TerminalFooter(_props: TerminalFooterProps) {
       }
 
       if (command === 'help') {
-        push(
-          command,
-          <span className={styles.hint}>
-            {[
-              '可用命令：',
-              '  help          显示这份帮助',
-              '  cat LICENSE   查阅《杏仁鹿与咕猫猫一生一世专属许可证》',
-              '  fortune       抽一支御神签（含冷却）',
-              '  clear         清屏',
-            ].join('\n')}
-          </span>,
-        )
+        push(command, <span className={styles.hint}>{COMMAND_HELP.join('\n')}</span>)
         return
       }
 
@@ -105,7 +113,7 @@ export function TerminalFooter(_props: TerminalFooterProps) {
           push(
             command,
             <span className={styles.hint}>
-              签筒尚在冷却，还请 {formatRemaining(remaining)} 后再来。
+              {fortuneCooldownNotice(formatRemaining(remaining))}
             </span>,
           )
           return
@@ -123,50 +131,23 @@ export function TerminalFooter(_props: TerminalFooterProps) {
         return
       }
 
-      push(
-        command,
-        <span className={styles.hint}>{`未知命令：${command}\n输入 help 查看可用命令。`}</span>,
-      )
+      push(command, <span className={styles.hint}>{unknownCommand(command)}</span>)
     },
     [push],
   )
 
-  return (
-    <footer className={styles.footer} aria-label="终端彩蛋">
-      <div className={styles.output}>
-        {entries.map((entry) => (
-          <div key={entry.id}>
-            <p className={styles.echo}>{entry.command}</p>
-            {entry.node}
-          </div>
-        ))}
-      </div>
+  const api = useMemo<SessionApi>(() => ({ entries, input, setInput, run }), [entries, input, run])
 
-      <form
-        className={styles.prompt}
-        onSubmit={(event) => {
-          event.preventDefault()
-          run(input)
-          setInput('')
-        }}
-      >
-        <label className={styles.label} htmlFor="terminal-input">
-          gu@with-gu:~$
-        </label>
-        <input
-          id="terminal-input"
-          className={styles.input}
-          value={input}
-          onChange={(event) => setInput(event.target.value)}
-          placeholder="help"
-          autoComplete="off"
-          spellCheck={false}
-          aria-describedby="terminal-hint"
-        />
-        <span id="terminal-hint" className="sr-only">
-          输入 help 查看可用命令
-        </span>
-      </form>
-    </footer>
-  )
+  return <SessionContext.Provider value={api}>{children}</SessionContext.Provider>
+}
+
+/** 会话状态。不在 `TerminalSession` 内调用时抛错 —— 这是装配错误，不是运行时分支 */
+export function useTerminalSession(): SessionApi {
+  const session = useContext(SessionContext)
+
+  if (!session) {
+    throw new Error('useTerminalSession 必须在 <TerminalSession> 内使用')
+  }
+
+  return session
 }

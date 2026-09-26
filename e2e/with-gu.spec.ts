@@ -15,6 +15,12 @@ import { expect, test, type Page } from '@playwright/test'
 async function enterSite(page: Page): Promise<void> {
   await page.goto('/')
   await page.getByRole('button', { name: /ENTER/ }).click()
+
+  /* 等窗口的入场动画收势。
+     这一帧不是可有可无的等待 —— 动画途中的 opacity 会让 axe 把整窗文字
+     当成半透明色去算对比度（#ffab2e 被算成 #463010），凭空判出十几条
+     color-contrast serious。等状态，不等时间。 */
+  await expect(page.locator('[data-terminal-window]')).toHaveAttribute('data-enter-state', 'done')
 }
 
 /** 某个节点的字符画容器 */
@@ -217,6 +223,67 @@ test.describe('页脚微终端', () => {
   })
 })
 
+test.describe('终端窗口', () => {
+  /**
+   * 正片不是「铺在黑底上的一堆卡片」，而是**一台终端里的一个窗口**。
+   * 这条用例守的就是这个结构本身 —— 它没有别的可测产物，
+   * 一旦退回「长文档 + 卡片」的形态，沉浸感会静悄悄地消失而没有任何测试报警。
+   */
+  test('内容活在窗口里，滚动也发生在窗口里', async ({ page }) => {
+    await enterSite(page)
+
+    await expect(page.locator('[data-terminal-window]')).toBeVisible()
+    await expect(page.locator('[data-terminal-window]')).toContainText('gu@with-gu: ~/timeline')
+
+    // 判据一：**页面本身不滚动**。窗口是 fixed 的，文档不该有可滚动高度 ——
+    // 一旦这里变成 true，说明窗口退化成了文档流里的长容器，边框会跟着内容滚走。
+    const documentScrolls = await page.evaluate(
+      () => document.documentElement.scrollHeight > document.documentElement.clientHeight,
+    )
+    expect(documentScrolls).toBe(false)
+
+    // 判据二：内容确实超出了屏幕，所以滚动发生在窗口内部
+    const overflow = await page.locator('[data-terminal-screen]').evaluate((el) => ({
+      scrollHeight: el.scrollHeight,
+      clientHeight: el.clientHeight,
+    }))
+    expect(overflow.scrollHeight).toBeGreaterThan(overflow.clientHeight)
+  })
+
+  test('滚到最深处，标题栏与提示符依然在窗口里', async ({ page }) => {
+    await enterSite(page)
+
+    await page.locator('li[data-milestone="nanjing"]').scrollIntoViewIfNeeded()
+
+    await expect(page.locator('[data-terminal-window]')).toContainText('gu@with-gu: ~/timeline')
+
+    // 用 toBeInViewport 而非 toBeVisible：要的就是「没被滚走」。
+    // 标题栏要精确定位 —— 每个节点内部也有 <header>，裸 'header' 会命中复数。
+    await expect(page.locator('[data-terminal-window] > header')).toBeInViewport()
+    await expect(page.getByLabel('gu@with-gu:~$')).toBeInViewport()
+  })
+
+  test('命令输出落在屏幕末尾，而不是挤在底部命令行里', async ({ page }) => {
+    await enterSite(page)
+
+    const input = page.getByLabel('gu@with-gu:~$')
+    await input.fill('help')
+    await input.press('Enter')
+
+    // 输出出现在窗口的屏幕上……
+    const screen = page.locator('[data-terminal-screen]')
+    await expect(screen.getByText('可用命令：')).toBeAttached()
+
+    // ……并且提交后自动滚到了最新一行
+    await expect(screen.getByText('可用命令：')).toBeInViewport()
+
+    // 清屏之后屏幕里不该再有输出
+    await input.fill('clear')
+    await input.press('Enter')
+    await expect(page.getByText('可用命令：')).toHaveCount(0)
+  })
+})
+
 test.describe('移动端', () => {
   test.use({ viewport: { width: 375, height: 667 } })
 
@@ -228,12 +295,24 @@ test.describe('移动端', () => {
       await page.locator('li[data-milestone]').nth(i).scrollIntoViewIfNeeded()
     }
 
-    const { scrollWidth, clientWidth } = await page.evaluate(() => ({
-      scrollWidth: document.documentElement.scrollWidth,
-      clientWidth: document.documentElement.clientWidth,
-    }))
+    const { document: doc, screen } = await page.evaluate(() => {
+      const el = document.querySelector('[data-terminal-screen]')
+      return {
+        document: {
+          scrollWidth: document.documentElement.scrollWidth,
+          clientWidth: document.documentElement.clientWidth,
+        },
+        screen: el
+          ? { scrollWidth: el.scrollWidth, clientWidth: el.clientWidth }
+          : { scrollWidth: 0, clientWidth: 0 },
+      }
+    })
 
-    expect(scrollWidth).toBeLessThanOrEqual(clientWidth)
+    // 两个容器都要守住：
+    // 文档 —— 窗口是 fixed 的，一旦它比视口宽，整页会横向滚；
+    // 屏幕 —— 内容真正溢出的地方，窄屏上字符画最容易撑破的就是它。
+    expect(doc.scrollWidth).toBeLessThanOrEqual(doc.clientWidth)
+    expect(screen.scrollWidth).toBeLessThanOrEqual(screen.clientWidth)
   })
 })
 
@@ -256,6 +335,9 @@ test.describe('无障碍', () => {
     await page.keyboard.press('Enter')
 
     await expect(page.getByRole('heading', { name: '门可罗雀的直播间' })).toBeVisible()
+
+    // 窗口的入场动画必须已经收势，否则量到的是半透明的一帧（见 enterSite 的说明）
+    await expect(page.locator('[data-terminal-window]')).toHaveAttribute('data-enter-state', 'done')
 
     const results = await new AxeBuilder({ page }).analyze()
     const serious = results.violations.filter(
