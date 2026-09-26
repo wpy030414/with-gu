@@ -96,5 +96,5 @@
 }
 
 .input::placeholder {
-  color: var(--amber-ghost);
+  color: var(--amber-dim);
 }

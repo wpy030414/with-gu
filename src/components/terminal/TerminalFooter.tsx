@@ -89,7 +89,12 @@ export function TerminalFooter(_props: TerminalFooterProps) {
       }
 
       if (command === 'cat LICENSE' || command === 'cat license') {
-        push(command, <pre className={styles.license}>{licenseText.trimEnd()}</pre>)
+        push(
+          command,
+          <pre className={styles.license} data-testid="license-output">
+            {licenseText.trimEnd()}
+          </pre>,
+        )
         return
       }
 

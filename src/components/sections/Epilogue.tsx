@@ -36,7 +36,7 @@ export function Epilogue({ pool }: EpilogueProps) {
 
       <p className={styles.closing}>{EPILOGUE.closing}</p>
 
-      <div className={styles.stars} aria-hidden="true">
+      <div className={styles.stars}>
         <AsciiArt
           id="epilogue-stars"
           art={stars}
@@ -45,6 +45,7 @@ export function Epilogue({ pool }: EpilogueProps) {
           seed={seedFromString('with-gu-stars')}
           pool={pool}
           priority={5}
+          label="字符星空"
         />
       </div>
 

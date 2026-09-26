@@ -44,12 +44,15 @@ export default function App() {
     <>
       <CrtOverlay />
 
-      <a className="sr-only" href="#timeline">
-        跳到时间线
-      </a>
-
       {entered ? (
         <>
+          {/* 跳转链接只在正文存在时才渲染 ——
+              否则开机阶段它会指向一个还不存在的 #timeline，
+              键盘用户第一下 Tab 就撞上死链接 */}
+          <a className="sr-only" href="#timeline">
+            跳到时间线
+          </a>
+
           <main id="timeline">
             <TimelineSection pool={pool} />
             <Epilogue pool={pool} />

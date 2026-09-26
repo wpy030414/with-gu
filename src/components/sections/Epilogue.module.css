@@ -14,8 +14,10 @@
 }
 
 .stars {
+  /* 不要用 opacity 压暗 —— 那会连带把对比度压到 AA 之下（实测 3.35:1）。
+     星星的暗度由 --amber-dim 本身控制。 */
   color: var(--amber-dim);
-  opacity: 0.85;
+  line-height: 1;
 }
 
 .closing {

@@ -6,7 +6,9 @@
 
 .heading {
   margin-bottom: var(--space-8);
-  color: var(--amber-dim);
+
+  /* 这是正儿八经的标题文字，必须满足 AA —— 用次级正文色而非装饰色 */
+  color: var(--text-secondary);
 
   font-size: 12px;
   letter-spacing: 0.3em;

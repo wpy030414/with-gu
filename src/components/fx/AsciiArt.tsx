@@ -70,8 +70,12 @@ function AsciiArtImpl({
           '--art-rows': grid.rows,
         } as React.CSSProperties
       }
-      role={label ? 'img' : undefined}
-      aria-label={label}
+      role="img"
+      aria-label={label ?? '字符画'}
+      /* 字符画宽于容器时会在内部横向滚动。
+         滚动区域必须可键盘聚焦，否则键盘用户根本看不到超出的部分
+         （axe 的 scrollable-region-focusable）。 */
+      tabIndex={0}
     >
       {/* 两个 <pre> 都不传 children —— React 只 diff 它管理的 DOM，
           我们直接改 textContent，一旦 React 也去写就会互相覆盖 */}
