@@ -60,67 +60,14 @@ jobs:
           # 于是部署上去的站点会被 Jekyll 处理。必须显式带上。
           include-hidden-files: true
 
-  e2e:
-    name: E2E
-    runs-on: ubuntu-latest
-    needs: verify
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v5
-        with:
-          version: 12
-
-      - name: Set up Node
-        uses: actions/setup-node@v5
-        with:
-          node-version: 24
-          cache: pnpm
-
-      - name: Install
-        run: pnpm install --frozen-lockfile
-
-      # 浏览器二进制单独缓存 —— 否则每次 CI 都要多花几分钟重新下载
-      - name: Cache Playwright browsers
-        id: playwright-cache
-        uses: actions/cache@v5
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-
-      - name: Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install --with-deps chromium
-
-      - name: Install Playwright system deps
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: pnpm exec playwright install-deps chromium
-
-      - name: Run E2E
-        run: pnpm test:e2e
-
-      - name: Upload report on failure
-        if: failure()
-        uses: actions/upload-artifact@v6
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 7
-
   deploy:
     name: 部署到 GitHub Pages
     runs-on: ubuntu-latest
-    # E2E **不**卡住发布 —— 两条流水线并行，部署只等 verify。
+    # 部署只等 verify —— 取类型检查 / Lint / 单测 / 构建这四道闸。
     #
-    # 取舍说明（这是站主明确选择的行为，不是疏忽）：
-    #   · 好处：E2E 跑得慢或偶发 flaky 时，新版本照常发布，不被拖住。
-    #   · 代价：**E2E 挂了也照样部署** —— 部署出去的是验证过类型/Lint/单测/构建、
-    #     但没有跑过端到端用例的产物。也就是说 E2E 从「发布闸门」降级为「事后信号」。
-    #
-    # 想要既并行又不丢闸门，可在仓库的 branch protection 里把 `E2E` 设为
-    # required status check：PR 依旧合不进去，但 main 上的部署不被它阻塞。
+    # E2E **不在流水线里**（见 ADR-017）：它在本地跑，不进 CI。
+    # 于是部署出去的是「验证过类型、Lint、单测、构建，但没有跑过端到端用例」
+    # 的产物 —— 这是站主明确选择的行为，不是配置疏漏。
     needs: verify
     if: >-
       github.event_name != 'pull_request' &&
