@@ -111,9 +111,7 @@ export function buildGrid(art: string): AsciiGrid {
 
   const cols = content.reduce((max, line) => Math.max(max, displayWidth(line)), 0)
 
-  const lines = content.map(
-    (line) => line + ' '.repeat(Math.max(0, cols - displayWidth(line))),
-  )
+  const lines = content.map((line) => line + ' '.repeat(Math.max(0, cols - displayWidth(line))))
 
   return { lines, rows: lines.length, cols, text: lines.join('\n') }
 }

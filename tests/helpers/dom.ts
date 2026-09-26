@@ -100,8 +100,7 @@ class MockIntersectionObserverImpl implements MockIntersectionObserver {
   }
 }
 
-window.IntersectionObserver =
-  MockIntersectionObserverImpl as unknown as typeof IntersectionObserver
+window.IntersectionObserver = MockIntersectionObserverImpl as unknown as typeof IntersectionObserver
 
 /** 手动让某个元素「进入/离开视口」 */
 export function triggerIntersection(el: Element, isIntersecting: boolean): void {

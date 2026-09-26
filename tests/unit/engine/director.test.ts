@@ -119,9 +119,7 @@ describe('优先级预算', () => {
   })
 
   it('预算上限是 MAX_ACTIVE_ACTORS —— 把口号变成可执行的约束', () => {
-    const actors = Array.from({ length: 10 }, (_, i) =>
-      makeActor({ id: `a${i}`, priority: i }),
-    )
+    const actors = Array.from({ length: 10 }, (_, i) => makeActor({ id: `a${i}`, priority: i }))
     for (const m of actors) director.register(m.actor)
 
     director.advance(16)

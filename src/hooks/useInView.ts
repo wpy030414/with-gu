@@ -18,9 +18,7 @@ export interface UseInViewResult<T extends Element> {
  * 离开视口只是暂停推进，进度原样保留 —— 于是来回滚动不会重播，
  * 也不会突然跳到终态（见 engine/director.ts 的预算说明）。
  */
-export function useInView<T extends Element>(
-  options: UseInViewOptions = {},
-): UseInViewResult<T> {
+export function useInView<T extends Element>(options: UseInViewOptions = {}): UseInViewResult<T> {
   const { rootMargin = '0px 0px -15% 0px', threshold = 0.15 } = options
 
   const ref = useRef<T>(null)

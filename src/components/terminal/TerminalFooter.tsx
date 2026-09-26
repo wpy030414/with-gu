@@ -125,9 +125,7 @@ export function TerminalFooter(_props: TerminalFooterProps) {
 
       push(
         command,
-        <span className={styles.hint}>
-          {`未知命令：${command}\n输入 help 查看可用命令。`}
-        </span>,
+        <span className={styles.hint}>{`未知命令：${command}\n输入 help 查看可用命令。`}</span>,
       )
     },
     [push],

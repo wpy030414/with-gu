@@ -15,12 +15,7 @@ export function TimelineSection({ pool }: TimelineSectionProps) {
       {/* 语义化有序列表 —— 屏幕阅读器能完整朗读整条时间线 */}
       <ol className={styles.list}>
         {MILESTONES.map((milestone, index) => (
-          <MilestoneCard
-            key={milestone.id}
-            milestone={milestone}
-            index={index}
-            pool={pool}
-          />
+          <MilestoneCard key={milestone.id} milestone={milestone} index={index} pool={pool} />
         ))}
       </ol>
     </section>

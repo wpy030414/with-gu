@@ -51,8 +51,7 @@ export function Epilogue({ pool }: EpilogueProps) {
 
       <p className={styles.days}>
         我们已经在一起
-        <span className={styles.daysValue}>{days}</span>
-        天
+        <span className={styles.daysValue}>{days}</span>天
       </p>
     </section>
   )

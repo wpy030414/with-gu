@@ -1,12 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  ASCII_POOL,
-  DEFAULT_POOL,
-  LINE_CHARS,
-  pickChar,
-  resolvePool,
-} from '@/engine/charset'
+import { ASCII_POOL, DEFAULT_POOL, LINE_CHARS, pickChar, resolvePool } from '@/engine/charset'
 import { displayWidth, hasFullWidthChar } from '@/engine/grid'
 
 describe('字符池', () => {

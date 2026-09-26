@@ -30,7 +30,7 @@ describe('hash2d', () => {
 
     const expected = samples / 10
     const chiSquare = buckets.reduce(
-      (sum, observed) => sum + ((observed - expected) ** 2) / expected,
+      (sum, observed) => sum + (observed - expected) ** 2 / expected,
       0,
     )
 
