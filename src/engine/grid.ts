@@ -76,15 +76,13 @@ function stripCommonIndent(lines: readonly string[]): string[] {
 }
 
 /**
- * 把一段字符画解析成栅格。
+ * 归一化但**不补齐**：统一换行 → 剥离公共缩进 → 去掉首尾空行。
  *
- * 处理顺序：统一换行 → 剥离公共缩进 → 去掉首尾空行 → 逐行补齐到等宽。
- *
- * ⚠️ 栅格的「格」与「字符」是 **1:1** 的，这一点只在字符画为纯半角时成立。
- * 混入全角字符时补齐宽度依然正确（`displayWidth` 是宽度感知的），
- * 但逐格索引会错位 —— 所以有 `hasFullWidthChar` 在测试里守住这条线。
+ * 与 `buildGrid` 共用同一套归一化，但保留各行原始长度 ——
+ * 手工字符画的「内部各行是否严格等宽」只能在这一步之后才检验得出来
+ * （`buildGrid` 会把所有行补齐，问题会被抹平）。
  */
-export function buildGrid(art: string): AsciiGrid {
+export function normalizedArtLines(art: string): string[] {
   const normalised = art
     .replace(/\r\n?/g, '\n')
     // 制表符的宽度依上下文而定，不能进栅格
@@ -95,6 +93,20 @@ export function buildGrid(art: string): AsciiGrid {
   while (stripped.length > 0 && (stripped[0] ?? '').trim() === '') stripped.shift()
   while (stripped.length > 0 && (stripped[stripped.length - 1] ?? '').trim() === '') stripped.pop()
 
+  return stripped
+}
+
+/**
+ * 把一段字符画解析成栅格。
+ *
+ * 处理顺序：统一换行 → 剥离公共缩进 → 去掉首尾空行 → 逐行补齐到等宽。
+ *
+ * ⚠️ 栅格的「格」与「字符」是 **1:1** 的，这一点只在字符画为纯半角时成立。
+ * 混入全角字符时补齐宽度依然正确（`displayWidth` 是宽度感知的），
+ * 但逐格索引会错位 —— 所以有 `hasFullWidthChar` 在测试里守住这条线。
+ */
+export function buildGrid(art: string): AsciiGrid {
+  const stripped = normalizedArtLines(art)
   const content = stripped.length > 0 ? stripped : ['']
 
   const cols = content.reduce((max, line) => Math.max(max, displayWidth(line)), 0)
