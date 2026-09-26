@@ -112,6 +112,12 @@ button {
   *::before,
   *::after {
     animation-duration: 1ms !important;
+
+    /* delay 也必须归零。它不被 duration 那条规则覆盖 ——
+       逐行揭开靠的是 animation-delay，只压 duration 的话
+       「首帧即终态」会退化成「首帧起、一秒钟后陆续到位」。 */
+    animation-delay: 0ms !important;
+
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;
     scroll-behavior: auto !important;

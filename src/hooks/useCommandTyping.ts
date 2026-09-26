@@ -1,15 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+
+import { planLine } from '@/engine/pacing'
 
 import { useReducedMotion } from './useMediaQuery'
-
-/**
- * 每个字符的敲击间隔。
- *
- * 这不是「人打字的速度」—— 人手打字 100ms 以上一个字，那样一段命令行要敲三秒，
- * 读的人早就滚走了。要的是**终端回显**的节奏：让眼睛看得见它是被敲出来的，
- * 而不是「啪」地贴上去。再快就分辨不出来了。
- */
-export const TYPING_PER_CHAR_MS = 30
 
 /**
  * 一段会话的三个阶段：
@@ -57,7 +50,11 @@ export function useCommandTyping({
   started,
 }: UseCommandTypingOptions): UseCommandTypingResult {
   const reducedMotion = useReducedMotion()
-  const typingMs = reducedMotion ? 0 : text.length * TYPING_PER_CHAR_MS
+
+  /* 时长与步数都出自 engine/pacing —— 输出那几行走的是同一把尺子，
+     两边各算各的迟早会漂开 */
+  const step = useMemo(() => planLine(text), [text])
+  const typingMs = reducedMotion ? 0 : step.durationMs
 
   /**
    * 「已经开过口」是**单向**的。
@@ -90,5 +87,5 @@ export function useCommandTyping({
     return () => clearTimeout(timer)
   }, [phase, typingMs])
 
-  return { phase, typingMs, steps: text.length }
+  return { phase, typingMs, steps: step.steps }
 }

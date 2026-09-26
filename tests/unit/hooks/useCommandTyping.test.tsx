@@ -2,7 +2,8 @@ import { act, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { setReducedMotion } from '../../helpers/dom'
-import { TYPING_PER_CHAR_MS, useCommandTyping } from '@/hooks/useCommandTyping'
+import { TYPING_PER_CHAR_MS } from '@/engine/pacing'
+import { useCommandTyping } from '@/hooks/useCommandTyping'
 
 const TEXT = 'cat x.log'
 const TYPING_MS = TEXT.length * TYPING_PER_CHAR_MS

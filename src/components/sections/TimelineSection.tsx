@@ -1,4 +1,6 @@
 import { MILESTONES } from '@/content/timeline'
+import { planLine } from '@/engine/pacing'
+import { revealVars } from '@/components/reveal'
 import { useCommandTyping } from '@/hooks/useCommandTyping'
 import { useInView } from '@/hooks/useInView'
 
@@ -23,6 +25,9 @@ export function TimelineSection({ pool }: TimelineSectionProps) {
      与「版面早就摆好了」的分界线。 */
   const settled = phase === 'output'
 
+  // 标题刷出的节奏与命令行同尺 —— 它也是「输出」的一部分
+  const headingStep = planLine(`Timeline · 2024 — 2026 ${MILESTONES.length} records`)
+
   return (
     <section
       ref={ref}
@@ -39,7 +44,7 @@ export function TimelineSection({ pool }: TimelineSectionProps) {
         </span>
       </p>
 
-      <h1 className={styles.heading}>
+      <h1 className={styles.heading} style={revealVars(headingStep)}>
         <span>Timeline · 2024 — 2026</span>
         <span className={styles.leader} aria-hidden="true" />
         <span className={styles.count}>{MILESTONES.length} records</span>

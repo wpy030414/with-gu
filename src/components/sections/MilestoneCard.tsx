@@ -1,11 +1,16 @@
+import { useEffect, useState } from 'react'
+
 import { getArt } from '@/art/milestones'
 import { formatChineseDate, toIsoDate } from '@/engine/dates'
+import { planLine, totalMs } from '@/engine/pacing'
 import { seedFromString } from '@/engine/rng'
 import type { Milestone } from '@/content/timeline'
 import { AsciiArt } from '@/components/fx/AsciiArt'
 import { Narration } from '@/components/fx/Narration'
+import { revealVars } from '@/components/reveal'
 import { useCommandTyping } from '@/hooks/useCommandTyping'
 import { useInView } from '@/hooks/useInView'
+import { useReducedMotion } from '@/hooks/useMediaQuery'
 
 import styles from './MilestoneCard.module.css'
 
@@ -47,11 +52,33 @@ export function MilestoneCard({ milestone, index, pool, ready = true }: Mileston
     started: inView && ready,
   })
 
+  const reducedMotion = useReducedMotion()
+
   const art = getArt(milestone.art)
 
   const dateLabel = milestone.untilDate
     ? `${formatChineseDate(milestone.date)} — ${formatChineseDate(milestone.untilDate)}`
     : formatChineseDate(milestone.date)
+
+  /* 输出的三行走的是**和输入同一把尺子**（engine/pacing）：
+     每字同样 30ms，前一行刷完下一行才起步。行内的 `[ ` / `@ ` 这些记号由
+     CSS 的伪元素加上，所以这里把它们也算进列宽，免得时长对不上。 */
+  const metaStep = planLine(`${milestone.code} [ ${milestone.tag} ]`)
+  const dateStep = planLine(`@ ${dateLabel}`, metaStep.endMs)
+  const titleStep = planLine(milestone.title, dateStep.endMs)
+
+  /* 字符画要等文本把话说完才整块进场 —— 它不做流式，
+     一出现就是满屏乱码再解码，抢在标题前面出来会像两个东西在吵架。 */
+  const textOutputMs = reducedMotion ? 0 : totalMs(titleStep)
+  const [artReady, setArtReady] = useState(false)
+
+  useEffect(() => {
+    if (phase !== 'output') return
+
+    const timer = setTimeout(() => setArtReady(true), textOutputMs)
+
+    return () => clearTimeout(timer)
+  }, [phase, textOutputMs])
 
   return (
     <li
@@ -60,6 +87,7 @@ export function MilestoneCard({ milestone, index, pool, ready = true }: Mileston
       data-accent={milestone.accent ?? 'default'}
       data-milestone={milestone.id}
       data-phase={phase}
+      data-art={artReady ? 'ready' : 'pending'}
       style={{ '--typing-dur': `${typingMs}ms`, '--typing-steps': steps } as React.CSSProperties}
     >
       {/* 屏幕上敲的那条命令。id 已在下面的 MILESTONE_xx 里给了读屏用户，
@@ -75,17 +103,23 @@ export function MilestoneCard({ milestone, index, pool, ready = true }: Mileston
           视觉上由 clip-path 揭开 —— 于是它**始终占着布局**，
           揭开过程不会引发 CLS 或滚动锚定跳变 */}
       <div className={styles.result}>
-        <header className={styles.meta}>
+        <header className={styles.meta} style={revealVars(metaStep)}>
           <span className={styles.code}>{milestone.code}</span>
           <span className={styles.leader} aria-hidden="true" />
           <span className={styles.tag}>{milestone.tag}</span>
         </header>
 
-        <time className={styles.date} dateTime={toIsoDate(milestone.date)}>
+        <time
+          className={styles.date}
+          dateTime={toIsoDate(milestone.date)}
+          style={revealVars(dateStep)}
+        >
           {dateLabel}
         </time>
 
-        <h2 className={styles.title}>{milestone.title}</h2>
+        <h2 className={styles.title} style={revealVars(titleStep)}>
+          {milestone.title}
+        </h2>
 
         <div className={styles.art}>
           <AsciiArt
@@ -96,7 +130,7 @@ export function MilestoneCard({ milestone, index, pool, ready = true }: Mileston
             seed={seedFromString(milestone.id)}
             pool={pool}
             priority={100 - index}
-            armed={phase === 'output'}
+            armed={artReady}
             label={`${milestone.title} 的字符画`}
           />
         </div>

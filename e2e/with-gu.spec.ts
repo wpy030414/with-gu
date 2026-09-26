@@ -11,10 +11,15 @@ import { expect, test, type Page } from '@playwright/test'
  *    和 director 的注入式 `advance()` 保证。
  */
 
-/** 点击开机序列的 ENTER 进入正片 */
+/** 等开机序列交出 START，然后点进正片 */
 async function enterSite(page: Page): Promise<void> {
   await page.goto('/')
-  await page.getByRole('button', { name: /ENTER/ }).click()
+
+  /* 开机序列要跑满几秒才交出 START（按钮在此之前压根不在无障碍树里）。
+     等状态，不等时间 —— 下面是这同一条纪律的第三次应用。 */
+  await expect(page.locator('[data-boot-state]')).toHaveAttribute('data-boot-state', 'ready')
+
+  await page.getByRole('button', { name: /START/ }).click()
 
   /* 等窗口的入场动画收势。
      这一帧不是可有可无的等待 —— 动画途中的 opacity 会让 axe 把整窗文字
@@ -29,7 +34,7 @@ function artOf(page: Page, id: string) {
 }
 
 test.describe('开机序列', () => {
-  test('自检日志完整，ENTER 后进入时间线', async ({ page }) => {
+  test('自检日志完整，START 后进入时间线', async ({ page }) => {
     await page.goto('/')
 
     const bootLog = page.getByRole('log')
@@ -48,7 +53,7 @@ test.describe('开机序列', () => {
       { timeout: 20_000 },
     )
 
-    await page.getByRole('button', { name: /ENTER/ }).click()
+    await page.getByRole('button', { name: /START/ }).click()
 
     await expect(page.getByRole('heading', { name: '门可罗雀的直播间' })).toBeVisible()
     await expect(page.getByRole('list')).toBeVisible()
@@ -199,7 +204,7 @@ test.describe('页脚微终端', () => {
   test('help / cat LICENSE / fortune 三条命令都可用', async ({ page }) => {
     await enterSite(page)
 
-    const input = page.getByLabel('gu@with-gu:~$')
+    const input = page.getByLabel('user@with-gu:~$')
 
     await input.fill('help')
     await input.press('Enter')
@@ -220,7 +225,7 @@ test.describe('页脚微终端', () => {
   test('未知命令给出提示而不是静默失败', async ({ page }) => {
     await enterSite(page)
 
-    const input = page.getByLabel('gu@with-gu:~$')
+    const input = page.getByLabel('user@with-gu:~$')
     await input.fill('rm -rf /')
     await input.press('Enter')
 
@@ -238,7 +243,8 @@ test.describe('滚动驱动的会话', () => {
    */
   test('进入时屏幕是空的：先敲标题那条命令，才轮到第一条节点', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: /ENTER/ }).click()
+    await expect(page.locator('[data-boot-state]')).toHaveAttribute('data-boot-state', 'ready')
+    await page.getByRole('button', { name: /START/ }).click()
 
     // 注意这里不等 enterSite 的窗口动画 —— 那 320ms 会吃掉本用例的观察窗口
     const section = page.locator('[data-section="timeline"]')
@@ -287,7 +293,14 @@ test.describe('滚动驱动的会话', () => {
     const art = card.locator('[data-reveal-state]')
     await expect(art).toBeHidden()
 
+    // 文本开始刷了，字符画仍要等着 —— 门控是 data-art，不是 data-phase。
+    // 挂错的话屏幕上会先出现一团静止的乱码，停两秒才开始解码
     await expect(card).toHaveAttribute('data-phase', 'output')
+    await expect(card).toHaveAttribute('data-art', 'pending')
+    await expect(art).toBeHidden()
+
+    // 文本把话说完，它才整块进场
+    await expect(card).toHaveAttribute('data-art', 'ready')
     await expect(art).toBeVisible()
   })
 })
@@ -302,7 +315,7 @@ test.describe('终端窗口', () => {
     await enterSite(page)
 
     await expect(page.locator('[data-terminal-window]')).toBeVisible()
-    await expect(page.locator('[data-terminal-window]')).toContainText('gu@with-gu: ~/timeline')
+    await expect(page.locator('[data-terminal-window]')).toContainText('user -- -zsh')
 
     // 判据一：**页面本身不滚动**。窗口是 fixed 的，文档不该有可滚动高度 ——
     // 一旦这里变成 true，说明窗口退化成了文档流里的长容器，边框会跟着内容滚走。
@@ -324,18 +337,18 @@ test.describe('终端窗口', () => {
 
     await page.locator('li[data-milestone="nanjing"]').scrollIntoViewIfNeeded()
 
-    await expect(page.locator('[data-terminal-window]')).toContainText('gu@with-gu: ~/timeline')
+    await expect(page.locator('[data-terminal-window]')).toContainText('user -- -zsh')
 
     // 用 toBeInViewport 而非 toBeVisible：要的就是「没被滚走」。
     // 标题栏要精确定位 —— 每个节点内部也有 <header>，裸 'header' 会命中复数。
     await expect(page.locator('[data-terminal-window] > header')).toBeInViewport()
-    await expect(page.getByLabel('gu@with-gu:~$')).toBeInViewport()
+    await expect(page.getByLabel('user@with-gu:~$')).toBeInViewport()
   })
 
   test('命令输出落在屏幕末尾，而不是挤在底部命令行里', async ({ page }) => {
     await enterSite(page)
 
-    const input = page.getByLabel('gu@with-gu:~$')
+    const input = page.getByLabel('user@with-gu:~$')
     await input.fill('help')
     await input.press('Enter')
 
@@ -389,15 +402,19 @@ test.describe('无障碍', () => {
   test('键盘可达，且无严重违规', async ({ page }) => {
     await page.goto('/')
 
+    /* 先等开机序列把 START 交出来。这不是「等时间」—— 按钮在那之前
+       压根不在无障碍树里，键盘也 Tab 不到一个还不可见的元素。 */
+    await expect(page.locator('[data-boot-state]')).toHaveAttribute('data-boot-state', 'ready')
+
     // 用键盘走完开机序列。
     // 字符画本身是「可聚焦的滚动区域」，所以 Tab 未必第一下就落在按钮上 ——
     // 这里如实遍历，而不是直接 focus() 走捷径。
-    const enter = page.getByRole('button', { name: /ENTER/ })
+    const start = page.getByRole('button', { name: /START/ })
 
     let reached = false
     for (let i = 0; i < 10 && !reached; i++) {
       await page.keyboard.press('Tab')
-      reached = await enter.evaluate((el) => el === document.activeElement)
+      reached = await start.evaluate((el) => el === document.activeElement)
     }
     expect(reached).toBe(true)
 

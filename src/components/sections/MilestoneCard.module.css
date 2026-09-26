@@ -42,7 +42,7 @@
 
 /* 提示符本身是常驻的，不参与打字 —— 打字的是它后面的命令 */
 .command::before {
-  content: 'gu@with-gu:~$ ';
+  content: var(--shell-prompt);
   color: var(--amber);
 }
 
@@ -56,8 +56,10 @@
   clip-path: inset(0 100% 0 0);
 }
 
+/* 逐字揭开用 `jump-start` 而不是 `end` —— 后者会在 progress 差一点点到 1 时
+   停在倒数第二步，命令的最后一个字符永远打不出来。见 ADR-016。 */
 .card[data-phase='typing'] .typed {
-  animation: command-typing var(--typing-dur) steps(var(--typing-steps), end) forwards;
+  animation: command-typing var(--typing-dur) steps(var(--typing-steps), jump-start) forwards;
 }
 
 /* 敲完之后必须显式写满：动画选择器一旦不再匹配，`forwards` 也随之失效，
@@ -111,25 +113,18 @@
 }
 
 /* 三行短的依次划出来。用 clip-path 而非 opacity ——
-   opacity 会让 axe 在半透明的那一帧上判对比度不达标（见 ADR-014）。 */
+   opacity 会让 axe 在半透明的那一帧上判对比度不达标（见 ADR-014）。
+
+   时长、步数、起点全都从行内 style 传进来（见 components/reveal.ts）：
+   输出与输入共用 engine/pacing 那把尺子，每字同样 30ms，
+   前一行刷完下一行才起步 —— 写死任何一项都会立刻和另外两项对不上。 */
 .result > :is(.meta, .date, .title) {
   clip-path: inset(0 100% 0 0);
 }
 
 .card[data-phase='output'] .result > :is(.meta, .date, .title) {
-  animation: result-line 220ms steps(14, end) forwards;
-}
-
-.card[data-phase='output'] .meta {
-  animation-delay: 0ms;
-}
-
-.card[data-phase='output'] .date {
-  animation-delay: 90ms;
-}
-
-.card[data-phase='output'] .title {
-  animation-delay: 180ms;
+  animation: result-line var(--line-dur, 240ms) steps(var(--line-steps, 8), jump-start)
+    var(--line-delay, 0ms) forwards;
 }
 
 @keyframes result-line {
@@ -210,13 +205,18 @@
   padding: var(--space-3) 0;
 
   /* 字符画的 t=0 帧（满屏乱码）在挂载时就已经写进两层 <pre> 了 ——
-     它必须等到结果阶段才允许被看见，否则「滚到就有东西」还是漏了底。
+     它必须等到**文本把话说完**才允许被看见。
+
+     门控挂在 data-art 而不是 data-phase 上：进入 output 只是文本开始刷，
+     此时字符画还在等（armed 未开）。若这里放行，屏幕上会先出现一团
+     静止不动的乱码，停两秒才开始解码 —— 那就成了「提前摆好的版面」。
+
      用 visibility 而不是 opacity：半透明的一帧会让 axe 判对比度不达标
      （见 ADR-014），而 visibility 是离散的，没有中间态。 */
   visibility: hidden;
 }
 
-.card[data-phase='output'] .art {
+.card[data-art='ready'] .art {
   visibility: visible;
 }
 

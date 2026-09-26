@@ -14,16 +14,20 @@
  * 这样做的好处：**完整文本始终在 DOM 里** —— 屏幕阅读器一次就能读全，
  * 搜索引擎也抓得到，而视觉上仍是逐行浮现。
  *
- * 减弱动态效果时由 styles/base.css 的全局规则把 animation-duration 压到 1ms，
+ * 每行的时长、步数、起点由 engine/pacing 排好、经行内 style 传进来：
+ * 逐字推进一步，与命令行的打字速度是同一把尺子。
+ * 减弱动态效果时由 styles/base.css 的全局规则把 duration 与 delay 一并压掉，
  * 于是瞬间呈现完整内容，无需额外分支。
  */
 .line {
   clip-path: inset(0 100% 0 0);
 }
 
+/* `jump-start` 而非 `end`：逐字揭开必须容得下 progress 差一点点到 1
+   的浮点误差，否则每行都会少显示最后一个字。见 ADR-016。 */
 .lines[data-visible='true'] .line {
-  animation: narration-reveal 520ms steps(28, end) forwards;
-  animation-delay: calc(var(--line-index) * 320ms);
+  animation: narration-reveal var(--line-dur, 400ms) steps(var(--line-steps, 12), jump-start)
+    var(--line-delay, 0ms) forwards;
 }
 
 @keyframes narration-reveal {

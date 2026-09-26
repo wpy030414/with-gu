@@ -24,7 +24,7 @@
 }
 
 .command::before {
-  content: 'gu@with-gu:~$ ';
+  content: var(--shell-prompt);
   color: var(--amber);
 }
 
@@ -34,8 +34,9 @@
   clip-path: inset(0 100% 0 0);
 }
 
+/* 逐字揭开用 `jump-start`，理由见 ADR-016（steps(n, end) 会被浮点误差卡住） */
 .section[data-phase='typing'] .typed {
-  animation: section-typing var(--typing-dur) steps(var(--typing-steps), end) forwards;
+  animation: section-typing var(--typing-dur) steps(var(--typing-steps), jump-start) forwards;
 }
 
 .section[data-phase='output'] .typed {
@@ -96,7 +97,8 @@
 }
 
 .section[data-phase='output'] .heading {
-  animation: section-heading 260ms steps(14, end) forwards;
+  animation: section-heading var(--line-dur, 260ms) steps(var(--line-steps, 14), jump-start)
+    var(--line-delay, 0ms) forwards;
 }
 
 @keyframes section-heading {
