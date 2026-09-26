@@ -12,21 +12,25 @@ concurrency:
   group: pages-${{ github.ref }}
   cancel-in-progress: true
 
+# 动作版本一律取「跑在 node24 上的最低大版本」。
+# 更低的版本仍声明 node20，会被 runner 强制迁移并刷一屏弃用警告。
+# 升级时请只升到满足 node24 的那个大版本，不要盲目追最新 ——
+# 大版本之间的破坏性变更与本次修复无关，没必要一并承担。
 jobs:
   verify:
     name: 类型检查 · Lint · 单测 · 构建
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
         with:
           version: 12
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: pnpm
@@ -49,9 +53,12 @@ jobs:
         run: pnpm build-only
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./dist
+          # public/.nojekyll 是**点文件**，而这个动作默认把它排除在产物之外，
+          # 于是部署上去的站点会被 Jekyll 处理。必须显式带上。
+          include-hidden-files: true
 
   e2e:
     name: E2E
@@ -59,15 +66,15 @@ jobs:
     needs: verify
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
         with:
           version: 12
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: pnpm
@@ -78,7 +85,7 @@ jobs:
       # 浏览器二进制单独缓存 —— 否则每次 CI 都要多花几分钟重新下载
       - name: Cache Playwright browsers
         id: playwright-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
@@ -96,7 +103,7 @@ jobs:
 
       - name: Upload report on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-report
           path: playwright-report/
@@ -105,8 +112,16 @@ jobs:
   deploy:
     name: 部署到 GitHub Pages
     runs-on: ubuntu-latest
-    # E2E 通过后才部署
-    needs: [verify, e2e]
+    # E2E **不**卡住发布 —— 两条流水线并行，部署只等 verify。
+    #
+    # 取舍说明（这是站主明确选择的行为，不是疏忽）：
+    #   · 好处：E2E 跑得慢或偶发 flaky 时，新版本照常发布，不被拖住。
+    #   · 代价：**E2E 挂了也照样部署** —— 部署出去的是验证过类型/Lint/单测/构建、
+    #     但没有跑过端到端用例的产物。也就是说 E2E 从「发布闸门」降级为「事后信号」。
+    #
+    # 想要既并行又不丢闸门，可在仓库的 branch protection 里把 `E2E` 设为
+    # required status check：PR 依旧合不进去，但 main 上的部署不被它阻塞。
+    needs: verify
     if: >-
       github.event_name != 'pull_request' &&
       (github.ref == 'refs/heads/main' ||
@@ -121,4 +136,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
