@@ -1,0 +1,83 @@
+.card {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+
+  padding: var(--space-6);
+  border: 1px solid var(--amber-ghost);
+  border-left: 2px solid var(--amber-dim);
+
+  background: linear-gradient(180deg, var(--bg-panel), var(--bg-void));
+
+  /* 固定最小高度：字符画揭示过程中只改 textContent，绝不改变布局，
+     否则会触发滚动锚定跳变与 CLS */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 620px;
+  overflow-anchor: none;
+}
+
+.card[data-accent='alert'] {
+  border-left-color: var(--alert);
+}
+
+.card[data-accent='bright'] {
+  border-left-color: var(--amber-bright);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: baseline;
+  justify-content: space-between;
+
+  font-size: 12px;
+  letter-spacing: 0.14em;
+}
+
+.code {
+  color: var(--amber);
+}
+
+.tag {
+  color: var(--amber-dim);
+}
+
+.tag::before {
+  content: '[ ';
+}
+
+.tag::after {
+  content: ' ]';
+}
+
+.date {
+  color: var(--text-secondary);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+
+.date::before {
+  content: '@ ';
+  color: var(--amber-dim);
+}
+
+.title {
+  color: var(--amber-bright);
+  font-size: clamp(17px, 2.6vw, 24px);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-shadow: var(--glow-soft);
+}
+
+.art {
+  margin: var(--space-2) 0;
+  padding: var(--space-3) 0;
+  overflow-x: auto;
+}
+
+.card[data-accent='alert'] .title {
+  color: var(--alert);
+}

@@ -1,0 +1,50 @@
+.stack {
+  /* 用 grid 叠放两层，而不是 position: absolute ——
+     绝对定位的子元素不贡献父容器高度，章节会塌陷并引入 CLS */
+  display: grid;
+  place-items: start;
+
+  /* 关键：不能用 fit-content。
+     内容宽于容器时 fit-content 不会收缩，而是把祖先整个撑破，
+     于是页面出现横向滚动条。这里显式取「容器宽」与「内容宽」的较小者：
+     窄内容贴合（便于居中），宽内容被容器截住并**在内部**横向滚动。 */
+  width: min(100%, max-content);
+  max-width: 100%;
+  min-width: 0;
+
+  font-size: var(--cell-size);
+  line-height: var(--cell-line-height);
+  white-space: pre;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overflow-anchor: none;
+}
+
+.stack > * {
+  grid-area: 1 / 1;
+  margin: 0;
+}
+
+/* 亮层：已解码的目标字符。**唯一带辉光的一层** */
+.bright {
+  color: var(--amber-bright);
+  text-shadow: var(--glow-soft);
+}
+
+/* 暗层：只在未解码格作画的乱码。无辉光，面积随解码推进递减至零 */
+.noise {
+  color: var(--amber-dim);
+  text-shadow: none;
+
+  /* 乱码不可选中 —— 否则跨动画选区会抓到一串垃圾 */
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 窄屏下整体缩小，让更多字符画能完整落在屏内 */
+@media (width < 720px) {
+  .stack {
+    font-size: 9.5px;
+    line-height: 12px;
+  }
+}

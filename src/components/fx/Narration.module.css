@@ -1,0 +1,39 @@
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+
+  color: var(--amber);
+  font-size: clamp(13px, 1.6vw, 16px);
+  line-height: 1.85;
+}
+
+/*
+ * 打字机效果用 clip-path 逐行揭开实现，而不是逐字往 DOM 里塞文本。
+ *
+ * 这样做的好处：**完整文本始终在 DOM 里** —— 屏幕阅读器一次就能读全，
+ * 搜索引擎也抓得到，而视觉上仍是逐行浮现。
+ *
+ * 减弱动态效果时由 styles/base.css 的全局规则把 animation-duration 压到 1ms，
+ * 于是瞬间呈现完整内容，无需额外分支。
+ */
+.line {
+  clip-path: inset(0 100% 0 0);
+}
+
+.lines[data-visible='true'] .line {
+  animation: narration-reveal 520ms steps(28, end) forwards;
+  animation-delay: calc(var(--line-index) * 320ms);
+}
+
+@keyframes narration-reveal {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.line::before {
+  content: '>';
+  margin-right: 0.6em;
+  color: var(--amber-dim);
+}

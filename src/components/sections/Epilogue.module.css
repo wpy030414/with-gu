@@ -1,0 +1,51 @@
+.epilogue {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  align-items: center;
+
+  padding: var(--space-12) var(--space-6);
+  text-align: center;
+}
+
+.quote {
+  color: var(--amber-bright);
+  text-shadow: var(--glow-strong);
+}
+
+.stars {
+  color: var(--amber-dim);
+  opacity: 0.85;
+}
+
+.closing {
+  max-width: 34ch;
+
+  color: var(--amber);
+  font-size: clamp(15px, 2.2vw, 20px);
+  line-height: 1.9;
+  letter-spacing: 0.06em;
+}
+
+.days {
+  display: flex;
+  gap: 0.6em;
+  align-items: baseline;
+  justify-content: center;
+
+  color: var(--text-secondary);
+  font-size: clamp(13px, 1.8vw, 16px);
+  letter-spacing: 0.08em;
+}
+
+.daysValue {
+  color: var(--amber-bright);
+  font-size: 1.6em;
+  text-shadow: var(--glow-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.days::before {
+  content: '> ';
+  color: var(--amber-dim);
+}
