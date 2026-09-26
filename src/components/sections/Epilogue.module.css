@@ -11,16 +11,54 @@
   text-align: center;
 }
 
-.quote {
-  color: var(--amber-bright);
-  text-shadow: var(--glow-strong);
-}
-
 .stars {
   /* 不要用 opacity 压暗 —— 那会连带把对比度压到 AA 之下（实测 3.35:1）。
      星星的暗度由 --amber-dim 本身控制。 */
   color: var(--amber-dim);
   line-height: 1;
+
+  /* 微微闪烁：整片星空的亮度做不规则的起伏。
+
+     两个刻意的选择：
+     · **用 steps(1, end) 而不是平滑插值** —— 每段之内保持常量、到边界才跳，
+       那才是「闪」；平滑过渡会变成一盏调光灯，比不闪更假。
+     · **关键帧故意排得不均匀** —— 均匀的明暗节奏会立刻暴露它是循环动画，
+       而不规则的间隔读起来才像星星自己在眨眼。
+
+     幅度压在 0.82~1 之间：这是「微微」，再大就成了电源不稳。 */
+  animation: star-twinkle 7s steps(1, end) infinite;
+}
+
+@keyframes star-twinkle {
+  0%,
+  23% {
+    opacity: 1;
+  }
+
+  24%,
+  31% {
+    opacity: 0.82;
+  }
+
+  32%,
+  58% {
+    opacity: 1;
+  }
+
+  59%,
+  64% {
+    opacity: 0.88;
+  }
+
+  65%,
+  79% {
+    opacity: 0.94;
+  }
+
+  80%,
+  100% {
+    opacity: 1;
+  }
 }
 
 .closing {

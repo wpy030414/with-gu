@@ -22,18 +22,6 @@ export function Epilogue({ pool }: EpilogueProps) {
 
   return (
     <section className={styles.epilogue} aria-label="尾声">
-      <div className={styles.quote}>
-        <AsciiArt
-          id="epilogue-quote"
-          art={EPILOGUE.quote}
-          mode="typewriter"
-          durationMs={1600}
-          pool={pool}
-          priority={10}
-          label={EPILOGUE.quote}
-        />
-      </div>
-
       <p className={styles.closing}>{EPILOGUE.closing}</p>
 
       <div className={styles.stars}>

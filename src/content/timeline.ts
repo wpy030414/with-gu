@@ -40,7 +40,6 @@ export const TOGETHER_ANCHOR: CalendarDate = { year: 2026, month: 3, day: 8 }
 
 /** 尾声 */
 export const EPILOGUE = {
-  quote: 'Think different.',
   closing: '未来不可知，但我满心期待。',
 } as const
 
