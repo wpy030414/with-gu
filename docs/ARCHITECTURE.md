@@ -53,6 +53,7 @@
 | `engine/dates.ts` | 结构化日期与本地时区构造，避免 UTC 解析错位 |
 | `engine/generators.ts` | 程序化字符画：星空、行程条 |
 | `hooks/useCharAnimation.ts` | 把上述一切接到 React 生命周期，并写 DOM |
+| `hooks/useCommandTyping.ts` | **滚动驱动的会话阶段机**：idle → typing → output（见 ADR-015） |
 | `hooks/useMediaQuery.ts` | `useSyncExternalStore` 读取媒体查询（首帧即正确） |
 | `hooks/useInView.ts` | IntersectionObserver 封装 |
 | `hooks/useElapsedDays.ts` | 在一起的天数，每 60 秒订阅一次时钟 |
@@ -118,9 +119,12 @@ content/timeline.ts
       │  Milestone（纯数据）
       ▼
 MilestoneCard
-      │  art + mode + durationMs + seed
+      │  useInView ──▶ useCommandTyping ──▶ data-phase: idle → typing → output
+      │                  （命令先敲出来，敲完才轮到结果）      │
+      │                                                        │ armed
+      │  art + mode + durationMs + seed                        ▼
       ▼
-AsciiArt ──useInView──▶ play
+AsciiArt ──useInView──▶ play = inView && armed
       │                  │
       │                  ▼
       │            useCharAnimation ──register──▶ director
@@ -162,3 +166,7 @@ AsciiArt ──useInView──▶ play
 7. **入场动画要暴露状态属性**。窗口的 `opacity` 未落定时，axe 会把整窗文字
    按半透明色算对比度并判 serious —— 测试必须等 `data-enter-state="done"`，
    而不是等时间。见 ADR-014。
+8. **时钟不能挂在会抖的输入上**。`IntersectionObserver` 在元素贴着
+   `rootMargin` 那条线时会反复进出，任何以它为准起停的计时器都会被反复清零；
+   只要抖动周期短于那段时长，那件事就**永远做不完**。
+   「进入过」必须做成单向事实。见 ADR-015。
