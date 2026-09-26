@@ -1,6 +1,6 @@
 /* ==========================================================================
    with-gu · CRT 覆盖层
-   扫描线 + 暗角 + 偶发闪烁
+   扫描线 + 干扰波 + 暗角 + 偶发闪烁
    —— 全部是静态 fixed 层。
    刻意禁用 backdrop-filter 与 filter: blur()：两者都会强制整层每帧
    重新栅格化，在低端机上直接把帧率拖垮。
@@ -11,6 +11,9 @@
   inset: 0;
   z-index: var(--z-crt);
   pointer-events: none;
+
+  /* 干扰波会滚到视口外，别让溢出的那一截去碰文档 */
+  overflow: hidden;
 }
 
 /* 扫描线：每 3px 一条暗线 */
@@ -24,6 +27,43 @@
     rgb(0 0 0 / 16%) 2px,
     rgb(0 0 0 / 16%) 3px
   );
+}
+
+/* 干扰波（hum bar）：老显示器被市电干扰时，屏幕上会有一条缓慢下滚的亮带。
+   这是整套滤镜里**唯一会动**的那层 —— 扫描线是静止的，暗角是静止的，
+   只有它是活的，CRT 的「像在通电」也主要来自它。
+   用 transform 而非 top：走合成层，不触发重排。
+   透明度压在 7% 以内：再高就从「干扰」变成「遮住字」。 */
+.crt__wave {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 26vh;
+
+  background:
+    /* 亮带本身还带着细密的横纹，像真的信号干扰而不是一块半透明色板 */
+    repeating-linear-gradient(to bottom, rgb(0 0 0 / 5%) 0 1px, rgb(0 0 0 / 0%) 1px 3px),
+    linear-gradient(
+      to bottom,
+      rgb(255 199 90 / 0%),
+      rgb(255 199 90 / 4%) 35%,
+      rgb(255 199 90 / 7%) 50%,
+      rgb(255 199 90 / 4%) 65%,
+      rgb(255 199 90 / 0%)
+    );
+
+  will-change: transform;
+  animation: crt-wave 11s linear infinite;
+}
+
+@keyframes crt-wave {
+  from {
+    transform: translateY(-30vh);
+  }
+
+  to {
+    transform: translateY(105vh);
+  }
 }
 
 /* 暗角：中心透亮，四角压暗 */
@@ -70,5 +110,17 @@
 @media (prefers-reduced-motion: reduce) {
   .crt__flicker {
     animation: none;
+  }
+
+  /* 不是「让它停住」—— 停住就是一条亮带永久横在屏幕上，那比动着更难看 */
+  .crt__wave {
+    display: none;
+  }
+}
+
+/* 降低透明度：干扰波与闪烁都是靠叠加亮度实现的，一并收掉 */
+@media (prefers-reduced-transparency: reduce) {
+  .crt__wave {
+    display: none;
   }
 }
