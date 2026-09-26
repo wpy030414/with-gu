@@ -71,6 +71,17 @@
   --win-radius: 10px;
   --win-pad: var(--space-6);
 
+  /* 标题栏与命令行**同高** —— 两端等高，窗口才是个框，
+     而不是「上面一条边、下面一块面板」。高度写在这里而不是各写各的，
+     否则改一边忘一边，这条边又会胖回去。 */
+  --win-bar-h: 34px;
+
+  /* 命令行提示符。三处 CSS 的 content 都用它（命令行本身、节点开头
+     那句 `cat`、以及命令回显）；JSX 里那一处用 `content/commands.ts` 的
+     SHELL_PROMPT —— CSS 的 content 读不到 JS 常量，只能两边各留一份，
+     改的时候**一起改**。 */
+  --shell-prompt: 'user@with-gu:~$ ';
+
   /* 窗口投影：分层阴影比单层大半径更便宜，也更像真的窗口浮在桌面上 */
   --win-shadow:
     0 0 0 1px rgb(0 0 0 / 70%), 0 1px 2px rgb(0 0 0 / 60%), 0 24px 64px rgb(0 0 0 / 55%);

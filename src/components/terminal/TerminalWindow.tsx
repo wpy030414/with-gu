@@ -37,7 +37,7 @@ export function useTerminalScreen(): ScreenApi | null {
 }
 
 export interface TerminalWindowProps {
-  /** 标题栏正文，例如 `gu@with-gu: ~/timeline` */
+  /** 标题栏正文，例如 `user -- -zsh` */
   title: string
   /** 标题栏右侧的会话信息（编码、尺寸一类），纯装饰 */
   meta?: string

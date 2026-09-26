@@ -14,7 +14,7 @@
 }
 
 .echo::before {
-  content: 'gu@with-gu:~$ ';
+  content: var(--shell-prompt);
   color: var(--amber);
 }
 

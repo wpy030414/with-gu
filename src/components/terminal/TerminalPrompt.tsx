@@ -1,3 +1,5 @@
+import { SHELL_PROMPT } from '@/content/commands'
+
 import { useTerminalSession } from './TerminalSession'
 import styles from './TerminalPrompt.module.css'
 
@@ -20,7 +22,7 @@ export function TerminalPrompt() {
       }}
     >
       <label className={styles.label} htmlFor="terminal-input">
-        gu@with-gu:~$
+        {SHELL_PROMPT}
       </label>
       <input
         id="terminal-input"

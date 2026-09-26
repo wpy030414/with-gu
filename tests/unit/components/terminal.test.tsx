@@ -27,7 +27,7 @@ function setup() {
 
 async function typeCommand(command: string) {
   const user = userEvent.setup()
-  const input = screen.getByLabelText('gu@with-gu:~$')
+  const input = screen.getByLabelText('user@with-gu:~$')
 
   await user.type(input, `${command}{Enter}`)
 

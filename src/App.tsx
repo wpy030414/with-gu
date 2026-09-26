@@ -62,11 +62,7 @@ export default function App() {
            时间线、尾声、命令输出都在窗口内部的屏幕上滚动。
            首屏不吃这层外壳 —— 开机时窗口还没出现（见 ADR-014）。 */
         <TerminalSession>
-          <TerminalWindow
-            title="gu@with-gu: ~/timeline"
-            meta="UTF-8 · 80×24"
-            prompt={<TerminalPrompt />}
-          >
+          <TerminalWindow title="user -- -zsh" meta="UTF-8 · 80×24" prompt={<TerminalPrompt />}>
             <a className="sr-only" href="#terminal-input">
               跳到命令行
             </a>
