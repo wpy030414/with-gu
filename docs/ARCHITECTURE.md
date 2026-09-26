@@ -141,3 +141,7 @@ AsciiArt ──useInView──▶ play
    React 一旦也写就会互相覆盖。
 4. **`CNAME` 必须在 `public/`**。放在仓库根目录 Vite 不会拷贝进 `dist/`，
    部署后自定义域名会失效。
+5. **渲染参数不进动画 effect 的依赖**。`useCharAnimation` 的 `pool`（字符池）与 `play`（可见性）
+   都不是排程参数，一律走 ref 传递。实测字符池是在**挂载之后**才灌进来的，
+   一旦进入依赖数组就会重启注册 effect，而新注册的演员默认不可见、
+   同步可见性的 effect 又不会重跑 —— 动画会永久冻结。见 ADR-011。
