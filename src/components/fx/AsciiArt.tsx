@@ -21,6 +21,15 @@ export interface AsciiArtProps {
   id: string
   /** 无障碍描述。传了才有 role="img"；纯装饰则省略 */
   label?: string
+  /**
+   * 是否准许开始解码。默认准许。
+   *
+   * 时间线传的是「命令行敲完了吗」—— 滚到节点时先看命令被敲出来，
+   * 敲完才轮到字符画。注意它只是给 `play` 多加一个与门：
+   * `play` 本就走在 ref + `setVisible` 这条既有路径上（见 ADR-011），
+   * 中途翻转不会重启注册 effect，因此不会重现那次冻结。
+   */
+  armed?: boolean
 }
 
 /**
@@ -41,6 +50,7 @@ function AsciiArtImpl({
   priority = 0,
   id,
   label,
+  armed = true,
 }: AsciiArtProps) {
   const reducedMotion = useReducedMotion()
   const { ref, inView } = useInView<HTMLDivElement>()
@@ -50,7 +60,7 @@ function AsciiArtImpl({
     mode,
     durationMs,
     seed,
-    play: inView,
+    play: inView && armed,
     reducedMotion,
     pool,
     priority,

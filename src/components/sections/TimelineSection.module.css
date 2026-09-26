@@ -2,20 +2,81 @@
    with-gu · 时间线
    内容区不再是「一页文档」，而是终端屏幕上的一段输出 ——
    左右内边距由窗口（TerminalWindow 的 .screen）统一给。
+
+   与节点一样是滚动驱动的：命令先敲出来，标题随后划出（见 useCommandTyping）。
    ========================================================================== */
 
 .section {
+  --typing-dur: 0ms;
+  --typing-steps: 1;
+
   /* 不再自我居中：屏幕的内边距就是它的边界 */
   max-width: 100%;
 }
 
 .command {
+  min-height: 1.6em;
   margin-bottom: var(--space-6);
 
-  color: var(--amber);
+  color: var(--text-secondary);
   font-size: 13px;
   letter-spacing: 0.04em;
 }
+
+.command::before {
+  content: 'gu@with-gu:~$ ';
+  color: var(--amber);
+}
+
+.typed {
+  display: inline-block;
+  white-space: nowrap;
+  clip-path: inset(0 100% 0 0);
+}
+
+.section[data-phase='typing'] .typed {
+  animation: section-typing var(--typing-dur) steps(var(--typing-steps), end) forwards;
+}
+
+.section[data-phase='output'] .typed {
+  clip-path: inset(0 0 0 0);
+}
+
+@keyframes section-typing {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+
+  background: var(--amber);
+
+  animation: section-caret-blink 1s steps(1, end) infinite;
+}
+
+@keyframes section-caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.section[data-phase='output'] .caret {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .caret {
+    animation: none;
+  }
+}
+
+/* -------------------------------- 标题 -------------------------------- */
 
 .heading {
   display: flex;
@@ -30,6 +91,18 @@
   font-size: 12px;
   letter-spacing: 0.3em;
   text-transform: uppercase;
+
+  clip-path: inset(0 100% 0 0);
+}
+
+.section[data-phase='output'] .heading {
+  animation: section-heading 260ms steps(14, end) forwards;
+}
+
+@keyframes section-heading {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 /* 点线引导：终端里 `man` 索引页的分栏就是靠一串点把两端拉齐的。

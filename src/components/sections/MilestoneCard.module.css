@@ -2,9 +2,17 @@
    with-gu · 时间线节点
    一段终端输出，不是一张卡片 —— 无边框、无背景块，
    节点之间靠一条虚线断开（见 ADR-014）。
+
+   而且这一段是**滚动驱动的会话**：idle（还没滚到）→ typing（正在敲命令）
+   → output（结果吐出来）。三个阶段全部挂在 data-phase 上，
+   见 useCommandTyping。
    ========================================================================== */
 
 .card {
+  /* 兜底：万一 --typing-* 没传进来，打字应当是「瞬间完成」而不是「永远不动」 */
+  --typing-dur: 0ms;
+  --typing-steps: 1;
+
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -22,16 +30,112 @@
   border-top: 1px dashed var(--amber-ghost);
 }
 
-/* 节点由一条命令开启 —— 这是「终端在读日志」最省字的一笔 */
+/* ------------------------------- 命令行 ------------------------------- */
+
 .command {
+  min-height: 1.6em; /* 敲出来之前也占住行高，否则卡片会往上跳一下 */
+
   color: var(--text-secondary);
   font-size: 13px;
   letter-spacing: 0.04em;
 }
 
+/* 提示符本身是常驻的，不参与打字 —— 打字的是它后面的命令 */
 .command::before {
   content: 'gu@with-gu:~$ ';
   color: var(--amber);
+}
+
+.typed {
+  display: inline-block;
+  white-space: nowrap;
+
+  /* 逐字揭开用 clip-path，而不是改 width ——
+     后者每帧都在动布局，而 clip-path 只影响绘制。
+     完整命令始终在 DOM 里，读屏与复制都不受影响（与 Narration 同一手法）。 */
+  clip-path: inset(0 100% 0 0);
+}
+
+.card[data-phase='typing'] .typed {
+  animation: command-typing var(--typing-dur) steps(var(--typing-steps), end) forwards;
+}
+
+/* 敲完之后必须显式写满：动画选择器一旦不再匹配，`forwards` 也随之失效，
+   命令会整条缩回去 */
+.card[data-phase='output'] .typed {
+  clip-path: inset(0 0 0 0);
+}
+
+@keyframes command-typing {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* 块状光标：放在被裁剪的 .typed 内部，于是它自然停在打字进度处 */
+.caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+
+  background: var(--amber);
+
+  animation: caret-blink 1s steps(1, end) infinite;
+}
+
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* 命令交出控制权，光标也就交出去了 —— 真终端里它会到下一行去等 */
+.card[data-phase='output'] .caret {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .caret {
+    animation: none;
+  }
+}
+
+/* -------------------------------- 结果 -------------------------------- */
+
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* 三行短的依次划出来。用 clip-path 而非 opacity ——
+   opacity 会让 axe 在半透明的那一帧上判对比度不达标（见 ADR-014）。 */
+.result > :is(.meta, .date, .title) {
+  clip-path: inset(0 100% 0 0);
+}
+
+.card[data-phase='output'] .result > :is(.meta, .date, .title) {
+  animation: result-line 220ms steps(14, end) forwards;
+}
+
+.card[data-phase='output'] .meta {
+  animation-delay: 0ms;
+}
+
+.card[data-phase='output'] .date {
+  animation-delay: 90ms;
+}
+
+.card[data-phase='output'] .title {
+  animation-delay: 180ms;
+}
+
+@keyframes result-line {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 .meta {
@@ -104,6 +208,16 @@
 
 .art {
   padding: var(--space-3) 0;
+
+  /* 字符画的 t=0 帧（满屏乱码）在挂载时就已经写进两层 <pre> 了 ——
+     它必须等到结果阶段才允许被看见，否则「滚到就有东西」还是漏了底。
+     用 visibility 而不是 opacity：半透明的一帧会让 axe 判对比度不达标
+     （见 ADR-014），而 visibility 是离散的，没有中间态。 */
+  visibility: hidden;
+}
+
+.card[data-phase='output'] .art {
+  visibility: visible;
 }
 
 .card[data-accent='alert'] .title {

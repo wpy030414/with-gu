@@ -113,6 +113,11 @@ test.describe('字符池降级', () => {
 
 test.describe('滚动叙事', () => {
   test('七个节点齐备，且每幅字符画都会解码完成', async ({ page }) => {
+    /* 这条用例要**逐个等完七幅字符画**，本来就是全站最慢的一条；
+       加上每个节点「先敲命令再输出」的那一秒，已经贴着 Playwright 默认的
+       30 秒上限跑了。放宽三倍，别让它变成一条靠机器快慢决定生死的用例。 */
+    test.slow()
+
     await enterSite(page)
 
     const cards = page.locator('li[data-milestone]')
@@ -220,6 +225,70 @@ test.describe('页脚微终端', () => {
     await input.press('Enter')
 
     await expect(page.getByText(/未知命令：rm -rf \//)).toBeVisible()
+  })
+})
+
+test.describe('滚动驱动的会话', () => {
+  /**
+   * 每个节点是一段**会话**，不是一个预先摆好的版面：
+   * `idle`（还没滚到）→ `typing`（正在敲命令）→ `output`（结果吐出来）。
+   *
+   * 这三条用例守的是「依次输入命令、输出结果」这件事本身 ——
+   * 一旦退回「滚到就全都在那儿」，站子照样能跑，没有任何别的测试会报警。
+   */
+  test('进入时屏幕是空的：先敲标题那条命令，才轮到第一条节点', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: /ENTER/ }).click()
+
+    // 注意这里不等 enterSite 的窗口动画 —— 那 320ms 会吃掉本用例的观察窗口
+    const section = page.locator('[data-section="timeline"]')
+
+    // 标题那条命令先开口……
+    await expect(section).toHaveAttribute('data-phase', 'typing')
+    // ……此时第一条节点还没轮到它
+    await expect(page.locator('li[data-milestone="first-contact"]')).toHaveAttribute(
+      'data-phase',
+      'idle',
+    )
+
+    // 标题吐完，才轮到它
+    await expect(section).toHaveAttribute('data-phase', 'output')
+    await expect(page.locator('li[data-milestone="first-contact"]')).toHaveAttribute(
+      'data-phase',
+      'typing',
+    )
+
+    // 而屏幕外的那些，一条都还没开始
+    await expect(page.locator('li[data-milestone="meeting"]')).toHaveAttribute('data-phase', 'idle')
+    await expect(page.locator('li[data-milestone="nanjing"]')).toHaveAttribute('data-phase', 'idle')
+  })
+
+  test('滚到之后：先敲命令，敲完才轮到输出', async ({ page }) => {
+    await enterSite(page)
+
+    const card = page.locator('li[data-milestone="meeting"]')
+    await expect(card).toHaveAttribute('data-phase', 'idle')
+
+    await card.scrollIntoViewIfNeeded()
+
+    // 中间态必须真的存在 —— 少了它，「输入命令」就退化成「命令早就写好了」
+    await expect(card).toHaveAttribute('data-phase', 'typing')
+    await expect(card).toHaveAttribute('data-phase', 'output')
+  })
+
+  test('输出之前，结果与字符画都不露出来', async ({ page }) => {
+    await enterSite(page)
+
+    const card = page.locator('li[data-milestone="meeting"]')
+    await card.scrollIntoViewIfNeeded()
+
+    // 字符画的 t=0 帧（满屏乱码）在挂载时就写好了，所以必须靠 .art 的
+    // visibility 挡住 —— 否则「滚到就有东西」当场漏底
+    const art = card.locator('[data-reveal-state]')
+    await expect(art).toBeHidden()
+
+    await expect(card).toHaveAttribute('data-phase', 'output')
+    await expect(art).toBeVisible()
   })
 })
 
