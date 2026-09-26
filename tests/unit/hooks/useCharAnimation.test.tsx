@@ -12,6 +12,7 @@ interface HarnessProps {
   reducedMotion?: boolean
   mode?: RevealMode
   durationMs?: number
+  pool?: string
 }
 
 function Harness({
@@ -19,6 +20,7 @@ function Harness({
   reducedMotion = false,
   mode = 'wave',
   durationMs = 100,
+  pool,
 }: HarnessProps) {
   const { brightRef, noiseRef, settled } = useCharAnimation({
     art: ART,
@@ -26,6 +28,7 @@ function Harness({
     durationMs,
     play,
     reducedMotion,
+    pool,
     id: 'harness',
   })
 
@@ -185,6 +188,50 @@ describe('生命周期', () => {
   it('挂载时注册演员', () => {
     render(<Harness />)
     expect(director.activeActorCount).toBe(1)
+  })
+
+  /**
+   * 回归用例：字体就绪后实测字符池会从 DEFAULT_POOL 变成 ASCII_POOL，
+   * 这个 prop 变化绝不能让动画**停摆**。
+   *
+   * 曾经的事故：pool 进了注册 effect 的依赖数组，于是
+   *   unregister 旧演员 → register 新演员（visible: false）
+   * 而同步可见性的 effect 依赖 [id, play, reducedMotion] 全都没变、不会重跑，
+   * 新演员就永远等不到 setVisible(true) —— 导演发现无人可见便停表，
+   * 画面永远停在 data-reveal-state="running"。
+   *
+   * 只在「实测字符池判定为降级」的机器上触发，所以本地全绿、CI 全红。
+   */
+  it('字符池在挂载后变化，动画仍能跑到终态', () => {
+    const { rerender } = render(<Harness pool="ABC" durationMs={100} />)
+
+    act(() => {
+      director.advance(50)
+    })
+
+    // 字体就绪 —— App 在这里把实测池灌进来
+    rerender(<Harness pool="XYZ" durationMs={100} />)
+
+    act(() => {
+      director.advance(50)
+    })
+
+    expect(bright()).toBe('AB\nCD')
+    expect(screen.getByTestId('root')).toHaveAttribute('data-reveal-state', 'done')
+  })
+
+  it('字符池变化不会把已完成的画打回未完成', () => {
+    const { rerender } = render(<Harness pool="ABC" durationMs={100} />)
+
+    act(() => {
+      director.advance(100)
+    })
+    expect(screen.getByTestId('root')).toHaveAttribute('data-reveal-state', 'done')
+
+    rerender(<Harness pool="XYZ" durationMs={100} />)
+
+    expect(bright()).toBe('AB\nCD')
+    expect(screen.getByTestId('root')).toHaveAttribute('data-reveal-state', 'done')
   })
 
   it('卸载时从注册表移除 —— StrictMode 会立刻暴露泄漏', () => {

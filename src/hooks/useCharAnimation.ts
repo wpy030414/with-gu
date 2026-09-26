@@ -56,6 +56,9 @@ export interface UseCharAnimationResult {
  *    是静默空转：白烧 CPU、画面空白且无声。
  * 4. effect 依赖只放**原始值或 memo 化的稳定引用**，否则每次渲染都重启循环，
  *    表现为动画反复重置。
+ * 5. **渲染参数不进 effect 依赖**。`pool` 只决定乱码层取哪些字符，
+ *    与「按什么节奏解码」无关；它进了依赖就会在字体实测完成时
+ *    （`App` 把实测池灌进来）把动画重启一次 —— 详见下方 `poolRef`。
  */
 export function useCharAnimation(options: UseCharAnimationOptions): UseCharAnimationResult {
   const {
@@ -75,6 +78,27 @@ export function useCharAnimation(options: UseCharAnimationOptions): UseCharAnima
 
   const brightRef = useRef<HTMLPreElement>(null)
   const noiseRef = useRef<HTMLPreElement>(null)
+
+  /**
+   * `pool` 与 `play` 走 ref 而非依赖数组。
+   *
+   * 曾经的事故：字体就绪后 `App` 把实测字符池灌进 `pool`，于是注册 effect
+   * 重跑 —— 注销旧演员、注册新演员（`visible: false`）。而同步可见性的
+   * effect 依赖 `[id, play, reducedMotion]` 一个都没变、不会重跑，
+   * 新演员就永远等不到 `setVisible(true)`；导演发现无人可见便停表，
+   * 画面永远停在 `data-reveal-state="running"`。
+   *
+   * 只在「实测判定字符池需要降级」的机器上触发 —— 于是本地全绿、CI 全红。
+   * 修法是釜底抽薪：这两个都不是排程参数，本就不该进依赖数组。
+   */
+  const poolRef = useRef(pool)
+  const playRef = useRef(play)
+
+  // 必须先于下面写首帧的 layout effect 声明，保证 ref 在它取用前已是最新值
+  useLayoutEffect(() => {
+    poolRef.current = pool
+    playRef.current = play
+  }, [pool, play])
 
   // 惰性初始化：减弱动态效果下从第一帧起就是终态，
   // 于是首帧的 DOM 写入无需再同步 setState（那会多触发一轮渲染）
@@ -106,8 +130,8 @@ export function useCharAnimation(options: UseCharAnimationOptions): UseCharAnima
     // 起始帧（t=0）。settled 默认即为 false，同样不需要同步写回
     const mask = decodedMask(0, decodeOptions)
     bright.textContent = renderBrightLayer(grid, mask)
-    noise.textContent = renderNoiseLayer(grid, mask, pool, 0, seed)
-  }, [grid, decodeOptions, durationMs, pool, seed, reducedMotion])
+    noise.textContent = renderNoiseLayer(grid, mask, poolRef.current, 0, seed)
+  }, [grid, decodeOptions, durationMs, seed, reducedMotion])
 
   /** 注册演员 —— 进度与推进逻辑都在这里 */
   useEffect(() => {
@@ -124,7 +148,9 @@ export function useCharAnimation(options: UseCharAnimationOptions): UseCharAnima
     const actor: AnimationActor = {
       id,
       priority,
-      visible: false,
+      // 注册那一刻就与最新可见性对齐。
+      // 否则「注册后没能等到 setVisible」就会让演员石沉大海（见 poolRef 注释）
+      visible: playRef.current,
 
       tick(dt, noiseFrame) {
         // 卸载后写入不会抛错 —— 必须自己发现并退出
@@ -141,7 +167,7 @@ export function useCharAnimation(options: UseCharAnimationOptions): UseCharAnima
           bright.textContent = renderBrightLayer(grid, mask)
         }
 
-        noise.textContent = renderNoiseLayer(grid, mask, pool, noiseFrame, seed)
+        noise.textContent = renderNoiseLayer(grid, mask, poolRef.current, noiseFrame, seed)
 
         if (isFullyDecoded(mask)) {
           finished = true
@@ -169,7 +195,7 @@ export function useCharAnimation(options: UseCharAnimationOptions): UseCharAnima
     return () => {
       director.unregister(id)
     }
-  }, [id, priority, grid, decodeOptions, durationMs, pool, seed, reducedMotion])
+  }, [id, priority, grid, decodeOptions, durationMs, seed, reducedMotion])
 
   /** 可见性联动。进度留在演员身上，所以离开视口只是暂停，不会重播 */
   useEffect(() => {
