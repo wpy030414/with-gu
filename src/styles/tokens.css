@@ -1,0 +1,88 @@
+/* ==========================================================================
+   with-gu · 设计令牌
+   全站唯一色彩来源 —— 任何组件都不得硬编码颜色
+   ========================================================================== */
+
+:root {
+  /* ---------------- 底色：暖黑，避免纯黑的廉价感 ---------------- */
+  --bg-void: #0a0806;
+  --bg-panel: #120e08;
+  --bg-raised: #1a1409;
+
+  /* ---------------- 琥珀色阶 ---------------- */
+  --amber-bright: #ffc75a;
+  --amber: #ffab2e;
+
+  /* 正文次级色：满足 WCAG AA 4.5:1，可用于叙述正文 */
+  --text-secondary: #c99a4e;
+
+  /* 装饰性乱码专用 —— 禁止用于叙述正文（大概率不达 AA，见 ARCHITECTURE.md） */
+  --amber-dim: #9c6a1c;
+
+  /* 网格 / 边框 / 极弱提示 */
+  --amber-ghost: #4a3310;
+
+  /* 告警：打赏、车祸 */
+  --alert: #ff6b3d;
+
+  /* ---------------- 辉光 ----------------
+     小半径多层远比大半径便宜：text-shadow 每次文本变化都要
+     重新栅格化整块，半径越大越贵。 */
+  --glow-soft: 0 0 2px rgb(255 171 46 / 50%), 0 0 6px rgb(255 171 46 / 35%);
+  --glow-strong: 0 0 2px rgb(255 199 90 / 70%), 0 0 8px rgb(255 171 46 / 45%);
+  --glow-alert: 0 0 2px rgb(255 107 61 / 60%), 0 0 8px rgb(255 107 61 / 40%);
+  --glow-none: none;
+
+  /* ---------------- 字体 ----------------
+     中文回落到系统字族；字符画一律纯半角 ASCII，中文只出现在画外。 */
+  --font-mono:
+    'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas,
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', monospace;
+
+  /* ---------------- 等宽栅格 ----------------
+     行高必须显式 px：CJK 回退字体的 ascent/descent 会改变行盒高度，
+     相对行高会让逐行纵向对不齐。 */
+  --cell-size: 16px;
+  --cell-line-height: 20px;
+  --cell-advance: 9.6px; /* 运行时由 measureCell 实测覆盖 */
+
+  /* ---------------- 间距 ---------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  /* ---------------- 布局 ---------------- */
+  --content-max: 72ch;
+
+  /* ---------------- 动画时长 ---------------- */
+  --dur-fast: 120ms;
+  --dur-base: 320ms;
+  --dur-slow: 900ms;
+
+  /* ---------------- 层次 ---------------- */
+  --z-content: 1;
+  --z-crt: 50;
+  --z-overlay: 100;
+}
+
+/* 减弱动态效果：全站即时终态，不留任何持续循环 */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 1ms;
+    --dur-base: 1ms;
+    --dur-slow: 1ms;
+  }
+}
+
+/* 降低透明度：收掉辉光 */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glow-soft: none;
+    --glow-strong: none;
+    --glow-alert: none;
+  }
+}

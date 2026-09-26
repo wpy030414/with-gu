@@ -1,0 +1,74 @@
+/* ==========================================================================
+   with-gu · CRT 覆盖层
+   扫描线 + 暗角 + 偶发闪烁
+   —— 全部是静态 fixed 层。
+   刻意禁用 backdrop-filter 与 filter: blur()：两者都会强制整层每帧
+   重新栅格化，在低端机上直接把帧率拖垮。
+   ========================================================================== */
+
+.crt {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-crt);
+  pointer-events: none;
+}
+
+/* 扫描线：每 3px 一条暗线 */
+.crt__scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0%) 0,
+    rgb(0 0 0 / 0%) 2px,
+    rgb(0 0 0 / 16%) 2px,
+    rgb(0 0 0 / 16%) 3px
+  );
+}
+
+/* 暗角：中心透亮，四角压暗 */
+.crt__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgb(0 0 0 / 0%) 45%,
+    rgb(0 0 0 / 28%) 78%,
+    rgb(0 0 0 / 62%) 100%
+  );
+}
+
+/* 偶发闪烁：极低频、极小幅度 —— 幅度大了会像坏了而不是像 CRT */
+.crt__flicker {
+  position: absolute;
+  inset: 0;
+  background: var(--amber);
+  opacity: 0;
+  animation: crt-flicker 7s steps(1, end) infinite;
+}
+
+@keyframes crt-flicker {
+  0%,
+  96.5%,
+  100% {
+    opacity: 0;
+  }
+
+  97% {
+    opacity: 0.012;
+  }
+
+  98% {
+    opacity: 0;
+  }
+
+  98.5% {
+    opacity: 0.018;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crt__flicker {
+    animation: none;
+  }
+}
