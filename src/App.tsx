@@ -27,7 +27,17 @@ export default function App() {
     let cancelled = false
 
     void measureCellMetrics().then((metrics) => {
-      if (!cancelled) setPool(metrics.pool)
+      if (cancelled) return
+
+      setPool(metrics.pool)
+
+      /* 实测结果挂到 <html> 上，作为可观测的诊断信号：
+         字符画是否降级为纯 ASCII 取决于**这台机器**装了什么字体，
+         而这正是「本地全绿、CI 全红」那类故障的源头。
+         有了这个属性，Playwright 的 trace、真机 DevTools 都能一眼看出
+         问题机器落在哪一侧，不必再靠猜。 */
+      document.documentElement.dataset.charPool =
+        metrics.pool === DEFAULT_POOL ? 'default' : 'ascii'
     })
 
     return () => {
