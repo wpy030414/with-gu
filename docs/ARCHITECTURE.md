@@ -41,25 +41,25 @@
 
 ## 核心模块
 
-| 模块 | 职责 |
-|---|---|
-| `engine/rng.ts` | 种子化 PRNG（mulberry32）与无分配整数 hash。全站禁用 `Math.random()` |
-| `engine/charset.ts` | 随机字符池；按实测宽度降级为纯 ASCII 的保护 |
-| `engine/grid.ts` | ASCII 栅格化：缩进剥离、行补齐、东亚宽度、列→字符下标换算 |
-| `engine/reveal.ts` | **解码调度**。四种揭开顺序退化为同一个纯函数 `decodeProgressAt` |
-| `engine/render.ts` | 分层渲染：亮层（已解码）与暗层（未解码）的互补划分 |
-| `engine/director.ts` | **全局动画导演**。唯一 rAF、优先级预算、可见性、时间 clamp、降级 |
-| `engine/measure.ts` | 字体就绪门控的栅格度量（cellWidth / cellHeight / 字符池） |
-| `engine/dates.ts` | 结构化日期与本地时区构造，避免 UTC 解析错位 |
-| `engine/generators.ts` | 程序化字符画：星空、行程条 |
-| `hooks/useCharAnimation.ts` | 把上述一切接到 React 生命周期，并写 DOM |
-| `hooks/useCommandTyping.ts` | **滚动驱动的会话阶段机**：idle → typing → output（见 ADR-015） |
-| `hooks/useMediaQuery.ts` | `useSyncExternalStore` 读取媒体查询（首帧即正确） |
-| `hooks/useInView.ts` | IntersectionObserver 封装 |
-| `hooks/useElapsedDays.ts` | 在一起的天数，每 60 秒订阅一次时钟 |
-| `art/milestones.ts` | 八幅手工字符画（含启动字标） |
-| `content/*` | 剧情数据：时间线、台词池、御神签、命令文案 |
-| `components/terminal/*` | 终端窗口：外壳与屏幕 context · 会话状态 · 屏幕内的输出 · 常驻底部的提示符 |
+| 模块                        | 职责                                                                      |
+| --------------------------- | ------------------------------------------------------------------------- |
+| `engine/rng.ts`             | 种子化 PRNG（mulberry32）与无分配整数 hash。全站禁用 `Math.random()`      |
+| `engine/charset.ts`         | 随机字符池；按实测宽度降级为纯 ASCII 的保护                               |
+| `engine/grid.ts`            | ASCII 栅格化：缩进剥离、行补齐、东亚宽度、列→字符下标换算                 |
+| `engine/reveal.ts`          | **解码调度**。四种揭开顺序退化为同一个纯函数 `decodeProgressAt`           |
+| `engine/render.ts`          | 分层渲染：亮层（已解码）与暗层（未解码）的互补划分                        |
+| `engine/director.ts`        | **全局动画导演**。唯一 rAF、优先级预算、可见性、时间 clamp、降级          |
+| `engine/measure.ts`         | 字体就绪门控的栅格度量（cellWidth / cellHeight / 字符池）                 |
+| `engine/dates.ts`           | 结构化日期与本地时区构造，避免 UTC 解析错位                               |
+| `engine/generators.ts`      | 程序化字符画：星空、行程条                                                |
+| `hooks/useCharAnimation.ts` | 把上述一切接到 React 生命周期，并写 DOM                                   |
+| `hooks/useCommandTyping.ts` | **滚动驱动的会话阶段机**：idle → typing → output（见 ADR-015）            |
+| `hooks/useMediaQuery.ts`    | `useSyncExternalStore` 读取媒体查询（首帧即正确）                         |
+| `hooks/useInView.ts`        | IntersectionObserver 封装                                                 |
+| `hooks/useElapsedDays.ts`   | 在一起的天数，每 60 秒订阅一次时钟                                        |
+| `art/milestones.ts`         | 八幅手工字符画（含启动字标）                                              |
+| `content/*`                 | 剧情数据：时间线、御神签、命令文案                                        |
+| `components/terminal/*`     | 终端窗口：外壳与屏幕 context · 会话状态 · 屏幕内的输出 · 常驻底部的提示符 |
 
 ## 字符解码引擎（本项目的心脏）
 
@@ -139,12 +139,12 @@ AsciiArt ──useInView──▶ play = inView && armed
 
 ## 外部系统
 
-| 系统 | 用途 | 依赖程度 |
-|---|---|---|
-| GitHub Pages | 静态托管 | 强（唯一运行时依赖） |
-| GitHub Actions | 构建、测试、部署 | 强 |
-| Google Fonts（经 fontsource 自托管） | 等宽字体 | **已消除** —— 字体随构建打包，不请求外部 CDN |
-| 任何后端 / 数据库 / 统计 | — | 无 |
+| 系统                                 | 用途             | 依赖程度                                     |
+| ------------------------------------ | ---------------- | -------------------------------------------- |
+| GitHub Pages                         | 静态托管         | 强（唯一运行时依赖）                         |
+| GitHub Actions                       | 构建、测试、部署 | 强                                           |
+| Google Fonts（经 fontsource 自托管） | 等宽字体         | **已消除** —— 字体随构建打包，不请求外部 CDN |
+| 任何后端 / 数据库 / 统计             | —                | 无                                           |
 
 ## 重要技术边界
 

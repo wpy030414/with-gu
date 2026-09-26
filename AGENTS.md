@@ -41,7 +41,11 @@
    React 一旦也去写就会互相覆盖。
 6. **不要每帧 setState**。动画进度放 `useRef` / 闭包，唯一的 `setState` 是完成时的 `settled`。
 7. **等待用状态属性而非时间**。E2E 里用 `data-reveal-state`，绝不使用 `waitForTimeout`。
-8. **提交分段**。一个逻辑单元一次提交；不带 `Co-authored-by` 尾注。
+8. **`steps()` 的方向不能一把改**。逐字揭示用 `steps(n, jump-start)` ——
+   `jump-end` 会在 progress 差一点点到 1 时停在倒数第二步（浮点误差），
+   于是最后一个字永远打不出来。而闪烁动画要的恰恰相反（它靠「在 50% 处跳到透明」），
+   那些地方必须仍是 `jump-end`。见 ADR-016。
+9. **提交分段**。一个逻辑单元一次提交；不带 `Co-authored-by` 尾注。
 
 ### 改动前请先读
 
@@ -53,15 +57,15 @@
 
 ## 目录速查
 
-| 路径 | 职责 |
-|---|---|
-| `src/engine/` | **零 DOM 的纯逻辑层** —— 随机、栅格、解码调度、分层渲染、导演、度量、日期、生成器 |
-| `src/hooks/` | React 绑定层 —— 把引擎接到组件生命周期上 |
-| `src/art/` | 手工字符画（唯一允许出现「图形」的地方） |
-| `src/content/` | 剧情数据 —— 时间线、台词池、御神签 |
-| `src/components/` | 纯展示组件，不持有循环 |
-| `src/styles/` | 设计令牌、基础样式、CRT 覆盖层 |
-| `tests/unit/` | Vitest。覆盖率主战场是 `engine/` |
-| `e2e/` | Playwright 用户旅程 |
-| `docs/` | PRD / ARCHITECTURE / DECISIONS / specs |
-| `public/` | 原样拷贝进 `dist/` 的静态文件（**含 CNAME**） |
+| 路径              | 职责                                                                              |
+| ----------------- | --------------------------------------------------------------------------------- |
+| `src/engine/`     | **零 DOM 的纯逻辑层** —— 随机、栅格、解码调度、分层渲染、导演、度量、日期、生成器 |
+| `src/hooks/`      | React 绑定层 —— 把引擎接到组件生命周期上                                          |
+| `src/art/`        | 手工字符画（唯一允许出现「图形」的地方）                                          |
+| `src/content/`    | 剧情数据 —— 时间线、御神签、命令文案                                              |
+| `src/components/` | 纯展示组件，不持有循环                                                            |
+| `src/styles/`     | 设计令牌、基础样式、CRT 覆盖层                                                    |
+| `tests/unit/`     | Vitest。覆盖率主战场是 `engine/`                                                  |
+| `e2e/`            | Playwright 用户旅程 —— **只在本地跑**，不进 CI（见 ADR-017）                      |
+| `docs/`           | PRD / ARCHITECTURE / DECISIONS / specs                                            |
+| `public/`         | 原样拷贝进 `dist/` 的静态文件（**含 CNAME**）                                     |

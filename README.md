@@ -33,7 +33,7 @@ pnpm preview     # 预览生产构建
 pnpm type-check   # tsc --noEmit
 pnpm lint         # oxlint
 pnpm test         # vitest 单元测试
-pnpm test:e2e     # Playwright 端到端测试（自动构建并起 preview）
+pnpm test:e2e     # Playwright 端到端测试（自动构建并起 preview；**只在本地跑**，见 ADR-017）
 ```
 
 首次跑 E2E 需要先装浏览器：`pnpm exec playwright install chromium`。
