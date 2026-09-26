@@ -26,9 +26,19 @@
   opacity: 0;
 }
 
+/* 逐行滚出。
+
+   `jump-start` 不是随手选的：`steps(1, end)` 会**卡在起始值**上。
+   delay 是 1s 时，`Animation.currentTime` 实测停在 1000.9999999999999，
+   progress 是 0.9999999999998899 —— 而 jump-end 在 progress < 1 时输出的是
+   起始值，于是那一行永远是 `opacity: 0`，动画却已经 finished、fill 也兜不住。
+   jump-start 在 progress > 0 时给的就是结束值，容得下这点浮点误差。
+
+   注意闪烁类的动画要的恰好相反（它靠「在 50% 处跳到透明」），
+   那些地方仍然是 jump-end，两者不能一把改。见 ADR-016。 */
 .boot[data-armed='true'] .logLine {
-  animation: boot-line 1ms steps(1, end) forwards;
-  animation-delay: calc(var(--line-index) * 180ms);
+  animation: boot-line 1ms steps(1, jump-start) forwards;
+  animation-delay: calc(var(--line-index) * var(--boot-line-step));
 }
 
 @keyframes boot-line {
@@ -41,17 +51,6 @@
   color: var(--amber);
 }
 
-.quip {
-  margin-top: var(--space-4);
-  color: var(--amber);
-  font-size: clamp(13px, 1.7vw, 16px);
-}
-
-.quip::before {
-  content: '> ';
-  color: var(--amber-dim);
-}
-
 .enter {
   margin-top: var(--space-8);
   padding: var(--space-2) 0;
@@ -62,6 +61,20 @@
   text-shadow: var(--glow-soft);
 
   border-bottom: 1px solid var(--amber-ghost);
+
+  /* 自检没跑完之前，它根本不在无障碍树里 —— 键盘用户不会 Tab 到一个
+     还在「加载中」的按钮上。等 --boot-total 到了才交出来。 */
+  visibility: hidden;
+}
+
+.boot[data-armed='true'] .enter {
+  animation: boot-enter 1ms steps(1, jump-start) var(--boot-total) forwards;
+}
+
+@keyframes boot-enter {
+  to {
+    visibility: visible;
+  }
 }
 
 .enter:hover {
