@@ -9,8 +9,14 @@
 │  浏览器                                                   │
 │                                                          │
 │  App                                                     │
-│   ├── BootScreen ──────┐                                 │
-│   └── Timeline / Epilogue / TerminalFooter             │
+│   ├── BootScreen                  开机序列（无窗口外壳）   │
+│   └── TerminalSession                                    │
+│        └── TerminalWindow         正片整体所在的终端窗口    │
+│             ├── 标题栏（常驻）                             │
+│             ├── 屏幕（内部滚动）                           │
+│             │    ├── Timeline / Epilogue                  │
+│             │    └── TerminalOutput                       │
+│             └── 命令行（常驻）── TerminalPrompt            │
 │                        │                                 │
 │                        ▼                                 │
 │  components/  纯展示，不持有循环                          │
@@ -28,6 +34,10 @@
 
 **一条铁律**：`src/engine/` 里除 `director.ts` 与 `measure.ts` 外，全部是零 DOM 的纯函数。
 它们不碰 React、不碰 rAF、不读全局时间 —— 因此可以在 jsdom 之外被穷举测试。
+
+**一条结构**：正片只有一个 `fixed` 的终端窗口，页面本身不滚动（见 ADR-014）。
+窗口的屏幕是唯一的滚动容器，也是移动端横向溢出、键盘可达性、
+以及 axe 对比度检查真正关心的那个容器。
 
 ## 核心模块
 
@@ -47,7 +57,8 @@
 | `hooks/useInView.ts` | IntersectionObserver 封装 |
 | `hooks/useElapsedDays.ts` | 在一起的天数，每 60 秒订阅一次时钟 |
 | `art/milestones.ts` | 八幅手工字符画（含启动字标） |
-| `content/*` | 剧情数据：时间线、台词池、御神签 |
+| `content/*` | 剧情数据：时间线、台词池、御神签、命令文案 |
+| `components/terminal/*` | 终端窗口：外壳与屏幕 context · 会话状态 · 屏幕内的输出 · 常驻底部的提示符 |
 
 ## 字符解码引擎（本项目的心脏）
 
@@ -145,3 +156,9 @@ AsciiArt ──useInView──▶ play
    都不是排程参数，一律走 ref 传递。实测字符池是在**挂载之后**才灌进来的，
    一旦进入依赖数组就会重启注册 effect，而新注册的演员默认不可见、
    同步可见性的 effect 又不会重跑 —— 动画会永久冻结。见 ADR-011。
+6. **滚动容器只有窗口的屏幕一个**。正片整体在一个 `fixed` 窗口里，页面本身不滚动；
+   于是「有没有横向溢出」「键盘能不能滚」「axe 检查的是谁」全部指向
+   `[data-terminal-screen]`，而不是 `documentElement`。见 ADR-014。
+7. **入场动画要暴露状态属性**。窗口的 `opacity` 未落定时，axe 会把整窗文字
+   按半透明色算对比度并判 serious —— 测试必须等 `data-enter-state="done"`，
+   而不是等时间。见 ADR-014。

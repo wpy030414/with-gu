@@ -44,7 +44,7 @@ pnpm test:e2e     # Playwright 端到端测试（自动构建并起 preview）
 - **已知限制**：
   - 字符画全部为手工绘制的纯半角 ASCII，**不含照片**（站主明确选择）
   - 中文不进入 ASCII 栅格（全角占 2 列会破坏对齐），仅出现在叙述层
-  - 页脚微终端支持 `help` / `cat LICENSE` / `fortune` / `clear` 四条命令
+  - 命令行支持 `help` / `cat LICENSE` / `fortune` / `clear` 四条命令
 
 ## 核心技术
 
